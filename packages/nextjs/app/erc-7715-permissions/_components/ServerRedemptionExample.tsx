@@ -16,6 +16,14 @@ export const ServerRedemptionExample = (): React.JSX.Element => {
   const [customAmount, setCustomAmount] = useState("0.0000001");
   const [customRecipient, setCustomRecipient] = useState("");
 
+  const handleRequestPermission = async () => {
+    await requestPermission({
+      periodAmount: BigInt(100000000000000), // 0.0001 ETH
+      periodDuration: 86400, // 1 day
+      expiry: Math.floor(Date.now() / 1000) + 7776000, // 90 days
+    });
+  };
+
   const handleRedeemWithCustomParams = async () => {
     await redeemPermission(customAmount, customRecipient || undefined);
   };
@@ -56,7 +64,7 @@ export const ServerRedemptionExample = (): React.JSX.Element => {
               </svg>
               <span>Step 1: Request permission from the user (client-side with MetaMask)</span>
             </div>
-            <Button disabled={isLoading} onClick={requestPermission}>
+            <Button disabled={isLoading} onClick={handleRequestPermission}>
               {isLoading ? "Processing..." : "Request Permission"}
             </Button>
           </div>

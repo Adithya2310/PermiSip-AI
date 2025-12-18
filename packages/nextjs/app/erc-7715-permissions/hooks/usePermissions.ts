@@ -2,8 +2,6 @@
 
 import { useCallback, useState } from "react";
 import { RequestExecutionPermissionsReturnType, erc7715ProviderActions } from "@metamask/smart-accounts-kit/actions";
-import { parseEther } from "viem";
-import { sepolia } from "viem/chains";
 import { useAccount, useWalletClient } from "wagmi";
 
 export const usePermissions = () => {
@@ -46,89 +44,103 @@ export const usePermissions = () => {
   }, [address]);
 
   // Step 2: Request permission from user (client-side with MetaMask)
-  const requestPermission = useCallback(async () => {
-    if (!address) {
-      setError("Wallet not connected");
-      return;
-    }
+  const requestPermission = useCallback(
+    async ({
+      periodAmount,
+      periodDuration,
+      expiry,
+    }: {
+      periodAmount: bigint;
+      periodDuration: number;
+      expiry: number;
+    }) => {
+      if (!address) {
+        setError("Wallet not connected");
+        return;
+      }
 
-    if (!walletClient) {
-      setError("Wallet client not ready");
-      return;
-    }
+      if (!walletClient) {
+        setError("Wallet client not ready");
+        return;
+      }
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // First, create or get session account from backend
-      let sessionAddr = sessionAccountAddress;
-      if (!sessionAddr) {
-        sessionAddr = await createSession();
+      try {
+        // First, create or get session account from backend
+        let sessionAddr = sessionAccountAddress;
         if (!sessionAddr) {
-          throw new Error("Failed to create session account");
+          sessionAddr = await createSession();
+          if (!sessionAddr) {
+            throw new Error("Failed to create session account");
+          }
         }
-      }
 
-      // Extend wallet client with ERC-7715 actions
-      const client = walletClient!.extend(erc7715ProviderActions());
+        // Extend wallet client with ERC-7715 actions
+        const client = walletClient.extend(erc7715ProviderActions());
 
-      const currentTime = Math.floor(Date.now() / 1000);
-      // 1 day in seconds
-      const periodDuration = 86400;
-      // 30 days in seconds
-      const expiry = currentTime + 30 * 86400;
+        const currentTime = Math.floor(Date.now() / 1000);
 
-      // Request permission from user via MetaMask
-      const permission = await client.requestExecutionPermissions([
-        {
-          chainId: sepolia.id,
+        console.log("Requesting permission with:", {
+          chainId: walletClient.chain.id,
           expiry,
-          signer: {
-            type: "account",
-            data: {
-              address: sessionAddr as `0x${string}`,
+          periodAmount,
+          periodDuration,
+        });
+
+        // Request permission from user via MetaMask
+        const permission = await client.requestExecutionPermissions([
+          {
+            chainId: walletClient.chain.id as 11155111, // Cast to avoid type error if strict, or just number
+            expiry,
+            signer: {
+              type: "account",
+              data: {
+                address: sessionAddr as `0x${string}`,
+              },
+            },
+            isAdjustmentAllowed: true,
+            permission: {
+              type: "native-token-periodic",
+              data: {
+                periodAmount: periodAmount,
+                periodDuration: periodDuration, // seconds
+                justification: `Request permission to spend ${Number(periodAmount) / 1e18} ETH per interval for SIP`,
+                startTime: currentTime,
+              },
             },
           },
-          isAdjustmentAllowed: true,
-          permission: {
-            type: "native-token-periodic",
-            data: {
-              periodAmount: parseEther("0.001"),
-              periodDuration,
-              justification: "Request permission to spend 0.001 ETH per day",
-              startTime: currentTime,
-            },
-          },
-        },
-      ]);
+        ]);
 
-      setGrantedPermissions(permission);
+        setGrantedPermissions(permission);
 
-      // Store permissions on backend
-      const storeResponse = await fetch("/api/permissions/store", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userAddress: address,
-          permissions: permission,
-          sessionAccountAddress: sessionAddr,
-        }),
-      });
+        // Store permissions on backend
+        const storeResponse = await fetch("/api/permissions/store", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: address,
+            permissions: permission,
+            sessionAccountAddress: sessionAddr,
+          }),
+        });
 
-      if (!storeResponse.ok) {
-        const errorData = await storeResponse.json();
-        throw new Error(errorData.error || "Failed to store permissions");
+        if (!storeResponse.ok) {
+          const errorData = await storeResponse.json();
+          throw new Error(errorData.error || "Failed to store permissions");
+        }
+
+        console.log("✅ Permissions granted and stored successfully");
+      } catch (err: any) {
+        setError(err.message || "Failed to request permission");
+        console.error("Permission request error:", err);
+      } finally {
+        setIsLoading(false);
       }
-
-      console.log("✅ Permissions granted and stored successfully");
-    } catch (err: any) {
-      setError(err.message || "Failed to request permission");
-      console.error("Permission request error:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [address, sessionAccountAddress, walletClient, createSession]);
+    },
+    [address, sessionAccountAddress, walletClient, createSession],
+  );
 
   // Step 3: Redeem permission (server-side execution)
   const redeemPermission = useCallback(
