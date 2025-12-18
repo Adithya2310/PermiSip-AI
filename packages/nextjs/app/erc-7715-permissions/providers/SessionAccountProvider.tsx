@@ -1,39 +1,61 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { Implementation, MetaMaskSmartAccount, toMetaMaskSmartAccount } from "@metamask/smart-accounts-kit";
-import { Hex } from "viem";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { usePublicClient } from "wagmi";
+import { useAccount } from "wagmi";
 
 export const SessionAccountContext = createContext({
-  sessionAccount: null as MetaMaskSmartAccount | null,
+  sessionAccountAddress: null as string | null,
+  isLoading: false,
+  error: null as string | null,
+  refreshSession: async () => {},
 });
 
 export const SessionAccountProvider = ({ children }: { children: React.ReactNode }) => {
-  const publicClient = usePublicClient();
-  const [sessionAccount, setSessionAccount] = useState<MetaMaskSmartAccount | null>(null);
+  const { address } = useAccount();
+  const [sessionAccountAddress, setSessionAccountAddress] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const createSessionAccount = useCallback(async () => {
-    if (!publicClient) return;
-    const account = privateKeyToAccount(generatePrivateKey());
+  const refreshSession = useCallback(async () => {
+    if (!address) {
+      setSessionAccountAddress(null);
+      return;
+    }
 
-    const smartAccount = await toMetaMaskSmartAccount({
-      client: publicClient,
-      implementation: Implementation.Hybrid,
-      deployParams: [account.address as Hex, [], [], []],
-      deploySalt: "0x",
-      signer: { account },
-    });
+    setIsLoading(true);
+    setError(null);
 
-    setSessionAccount(smartAccount);
-  }, [publicClient]);
+    try {
+      const response = await fetch("/api/session/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userAddress: address }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get session");
+      }
+
+      setSessionAccountAddress(data.sessionAccountAddress);
+    } catch (err: any) {
+      setError(err.message || "Failed to get session");
+      console.error("Session error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [address]);
 
   useEffect(() => {
-    createSessionAccount();
-  }, []);
+    refreshSession();
+  }, [refreshSession]);
 
-  return <SessionAccountContext.Provider value={{ sessionAccount }}>{children}</SessionAccountContext.Provider>;
+  return (
+    <SessionAccountContext.Provider value={{ sessionAccountAddress, isLoading, error, refreshSession }}>
+      {children}
+    </SessionAccountContext.Provider>
+  );
 };
 
 export const useSessionAccount = () => {

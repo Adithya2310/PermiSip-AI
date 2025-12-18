@@ -69,7 +69,7 @@ export const Steps = (): React.JSX.Element => {
           )}
 
           {grantedPermissions && (
-            <Button disabled={isLoading} onClick={redeemPermission}>
+            <Button disabled={isLoading} onClick={() => redeemPermission()}>
               {isLoading ? "Processing..." : "Transfer 0.0000001 ETH on behalf of the user"}
             </Button>
           )}

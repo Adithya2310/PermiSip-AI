@@ -1,80 +1,279 @@
-# 🏗 Scaffold-ETH 2
+# **PermiSIP AI**
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+### Permissioned, Agent-Driven SIP Automation using MetaMask Advanced Permissions
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+---
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+## 🚀 Overview
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+**PermiSIP AI** is an AI-powered, goal-based SIP (Systematic Investment Plan) platform that uses **MetaMask Advanced Permissions (ERC-7715)** to enable fully automated, permissioned investing.
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+Instead of users manually executing monthly investments, **PermiSIP AI allows users to delegate limited, fine-grained permissions to an AI agent**. The agent designs an investment plan based on user goals and executes it automatically on a fixed schedule — **without repeated wallet prompts**.
 
-## Requirements
+The system is built as a **prototype for the MetaMask Advanced Permissions Hackathon**, focusing on:
 
-Before you begin, you need to install the following tools:
+* Safe delegation
+* Clear user consent
+* Automated execution
+* AI-assisted decision making
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+---
 
-## Quickstart
+## 🎯 Problem Statement
 
-To get started with Scaffold-ETH 2, follow the steps below:
+Traditional SIP and automated investment systems face three major issues:
 
-1. Install dependencies if it was skipped in CLI:
+1. **Manual Execution**
+
+   * Users must approve every transaction.
+   * Automation breaks wallet UX.
+
+2. **Over-Permissioned Automation**
+
+   * Bots often require full wallet access.
+   * High risk and poor user trust.
+
+3. **Lack of Intelligence**
+
+   * Static investment rules.
+   * No goal-based or adaptive planning.
+
+---
+
+## 💡 Solution
+
+**PermiSIP AI solves this by combining:**
+
+* **AI agents** for goal-based planning
+* **MetaMask Advanced Permissions (ERC-7715)** for scoped delegation
+* **Smart contracts** as the financial source of truth
+* **Vercel Cron** for automated execution
+
+Users grant **explicit, limited permissions** (e.g. monthly spend limits), and the AI agent executes investments responsibly within those constraints.
+
+---
+
+## 🧠 Core Concept
+
+> **“Permit an AI agent once, and let it invest responsibly for you.”**
+
+---
+
+## 🧩 Architecture Overview
+
+### High-Level Flow
 
 ```
-cd my-dapp-example
-yarn install
+User → Goal Input
+     → AI Planning (Agents)
+     → User Approval
+     → MetaMask Advanced Permissions
+     → Automated Monthly Execution
 ```
 
-2. Run a local network in the first terminal:
+---
 
+### Key Components
+
+#### 1. **Next.js Application**
+
+* Frontend UI
+* API routes acting as AI agents
+* Smart account interaction
+
+#### 2. **AI Agent System**
+
+* **Basic Agent (Orchestrator)**
+
+  * Interprets user goals
+  * Queries advanced agents
+  * Generates SIP plan
+* **Advanced Agents (Decision-only)**
+
+  * Risk assessment
+  * Yield estimation
+  * Protocol allocation
+
+> Agents communicate via internal API routes (no external services).
+
+---
+
+#### 3. **Smart Contracts (On-chain Logic)**
+
+The smart contract:
+
+* Stores SIP plans
+* Holds investment strategy
+* Executes monthly deposits
+* Acts as the **single source of truth**
+
+Protocols like **Aave, Compound, Uniswap** are **mocked** for the demo.
+
+---
+
+#### 4. **MetaMask Advanced Permissions (ERC-7715)**
+
+Used to:
+
+* Allow recurring monthly execution
+* Enforce spending limits
+* Avoid repeated wallet prompts
+* Maintain user custody at all times
+
+---
+
+#### 5. **Vercel KV + Cron**
+
+* **Vercel KV** stores only active user addresses (no financial data)
+* **Vercel Cron** triggers monthly execution automatically
+
+---
+
+## 🔄 User Flow (Step-by-Step)
+
+1. **User enters a financial goal**
+
+   ```
+   “I want to save $10,000 in 1 year to buy a car”
+   ```
+
+2. **Basic AI Agent**
+
+   * Parses the goal
+   * Calculates monthly investment
+   * Queries advanced agents
+
+3. **Advanced Agents respond**
+
+   * Risk profile (low / medium)
+   * Expected APY
+   * Protocol allocation
+
+4. **User sees a generated plan**
+
+   ```
+   Monthly Investment: $800
+   Allocation:
+   - Aave: 60%
+   - Compound: 30%
+   - Uniswap: 10%
+   ```
+
+5. **User approves the plan**
+
+   * MetaMask Advanced Permissions requested
+   * Monthly spend limit defined
+
+6. **Automation begins**
+
+   * Monthly execution via cron
+   * No wallet popups
+   * Funds invested via smart contract
+
+---
+
+## 🤖 AI Agent Design
+
+### Basic Agent
+
+* Orchestrates planning
+* Never touches funds directly
+* Coordinates all decisions
+
+### Advanced Agents
+
+* Stateless
+* Decision-only
+* No wallet or contract access
+
+This separation ensures:
+
+* Safety
+* Explainability
+* Clear responsibility boundaries
+
+---
+
+## 🔐 Security Model
+
+* **User funds never leave their smart account without permission**
+* Permissions are:
+
+  * Scoped
+  * Time-bound
+  * Amount-limited
+* All financial state lives on-chain
+* Off-chain storage holds **only user addresses for automation**
+
+---
+
+## 🗂 Data Storage Strategy
+
+### On-chain (Smart Contract)
+
+* SIP plans
+* Strategy
+* Deposits
+* Active state
+
+### Off-chain (Vercel KV)
+
+```json
+sip:active:0xUserAddress → { "createdAt": timestamp }
 ```
-yarn chain
-```
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
+No duplication of financial data.
 
-3. On a second terminal, deploy the test contract:
+---
 
-```
-yarn deploy
-```
+## 🛠 Tech Stack
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+* **Frontend / Backend:** Next.js (App Router + API routes)
+* **Blockchain:** Solidity
+* **Wallet & Permissions:** MetaMask Smart Accounts Kit (ERC-7715)
+* **Automation:** Vercel Cron
+* **Persistence:** Vercel KV
+* **Blockchain SDK:** viem / wagmi
 
-4. On a third terminal, start your NextJS app:
+---
 
-```
-yarn start
-```
+## 🧪 What Is Mocked (Intentionally)
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+* Protocol integrations (Aave, Compound, Uniswap)
+* Yield calculations
+* Time acceleration for demo
 
-Run smart contract test with `yarn hardhat:test`
+## ✅ What Is Real
 
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
+* Advanced Permissions
+* Smart account execution
+* Agent-based planning
+* Automated execution flow
 
+---
 
-## Documentation
+## 🏆 Hackathon Track Alignment
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+This project directly satisfies:
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
+* ✅ **MetaMask Advanced Permissions usage**
+* ✅ **Permission-based automation**
+* ✅ **Clear wallet UX improvement**
+* ✅ **Working demo with real execution**
 
-## Contributing to Scaffold-ETH 2
+---
 
-We welcome contributions to Scaffold-ETH 2!
+## 🔮 Future Scope
 
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+* Real protocol integrations
+* Dynamic rebalancing
+* Agent-to-agent micropayments
+* Cross-chain SIPs
+* Risk-aware plan updates
+* x402-based agent marketplaces
+
+---
+
+## 🏁 One-Line Pitch
+
+> **PermiSIP AI enables users to securely permit AI agents to automate long-term investing using MetaMask Advanced Permissions.**

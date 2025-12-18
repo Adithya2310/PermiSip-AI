@@ -1,37 +1,54 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  RequestExecutionPermissionsReturnType,
-  erc7710BundlerActions,
-  erc7715ProviderActions,
-} from "@metamask/smart-accounts-kit/actions";
-import { createPimlicoClient } from "permissionless/clients/pimlico";
-import { Hex, parseEther } from "viem";
-import { createPublicClient, http } from "viem";
-import { createBundlerClient } from "viem/account-abstraction";
+import { RequestExecutionPermissionsReturnType, erc7715ProviderActions } from "@metamask/smart-accounts-kit/actions";
+import { parseEther } from "viem";
 import { sepolia } from "viem/chains";
 import { useAccount, useWalletClient } from "wagmi";
-import { useSessionAccount } from "~~/app/erc-7715-permissions/providers/SessionAccountProvider";
 
 export const usePermissions = () => {
   const [grantedPermissions, setGrantedPermissions] = useState<RequestExecutionPermissionsReturnType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [sessionAccountAddress, setSessionAccountAddress] = useState<string | null>(null);
 
   const { address } = useAccount();
-  const { sessionAccount } = useSessionAccount();
   const { data: walletClient } = useWalletClient();
 
+  // Step 1: Create session account on backend
+  const createSession = useCallback(async () => {
+    if (!address) {
+      setError("Wallet not connected");
+      return null;
+    }
+
+    try {
+      const response = await fetch("/api/session/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userAddress: address }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create session");
+      }
+
+      setSessionAccountAddress(data.sessionAccountAddress);
+      return data.sessionAccountAddress;
+    } catch (err: any) {
+      setError(err.message || "Failed to create session");
+      console.error("Session creation error:", err);
+      return null;
+    }
+  }, [address]);
+
+  // Step 2: Request permission from user (client-side with MetaMask)
   const requestPermission = useCallback(async () => {
     if (!address) {
       setError("Wallet not connected");
-      return;
-    }
-
-    if (!sessionAccount) {
-      setError("Session account not ready");
       return;
     }
 
@@ -44,14 +61,25 @@ export const usePermissions = () => {
     setError(null);
 
     try {
+      // First, create or get session account from backend
+      let sessionAddr = sessionAccountAddress;
+      if (!sessionAddr) {
+        sessionAddr = await createSession();
+        if (!sessionAddr) {
+          throw new Error("Failed to create session account");
+        }
+      }
+
+      // Extend wallet client with ERC-7715 actions
       const client = walletClient!.extend(erc7715ProviderActions());
 
       const currentTime = Math.floor(Date.now() / 1000);
-      // 1 day in seconds.
+      // 1 day in seconds
       const periodDuration = 86400;
-      // 30 days in seconds.
+      // 30 days in seconds
       const expiry = currentTime + 30 * 86400;
 
+      // Request permission from user via MetaMask
       const permission = await client.requestExecutionPermissions([
         {
           chainId: sepolia.id,
@@ -59,7 +87,7 @@ export const usePermissions = () => {
           signer: {
             type: "account",
             data: {
-              address: sessionAccount.address as `0x${string}`,
+              address: sessionAddr as `0x${string}`,
             },
           },
           isAdjustmentAllowed: true,
@@ -68,7 +96,7 @@ export const usePermissions = () => {
             data: {
               periodAmount: parseEther("0.001"),
               periodDuration,
-              justification: "Request permisison to spend 0.001 ETH per day",
+              justification: "Request permission to spend 0.001 ETH per day",
               startTime: currentTime,
             },
           },
@@ -76,83 +104,80 @@ export const usePermissions = () => {
       ]);
 
       setGrantedPermissions(permission);
+
+      // Store permissions on backend
+      const storeResponse = await fetch("/api/permissions/store", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userAddress: address,
+          permissions: permission,
+          sessionAccountAddress: sessionAddr,
+        }),
+      });
+
+      if (!storeResponse.ok) {
+        const errorData = await storeResponse.json();
+        throw new Error(errorData.error || "Failed to store permissions");
+      }
+
+      console.log("✅ Permissions granted and stored successfully");
     } catch (err: any) {
       setError(err.message || "Failed to request permission");
       console.error("Permission request error:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [address, sessionAccount, walletClient]);
+  }, [address, sessionAccountAddress, walletClient, createSession]);
 
-  const redeemPermission = useCallback(async () => {
-    if (!grantedPermissions) {
-      setError("Permission not found");
-      return;
-    }
-
-    if (!sessionAccount) {
-      setError("Session account not available");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    setTxHash(null);
-
-    try {
-      const pimlicoKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY;
-      if (!pimlicoKey) {
-        throw new Error("Pimlico API key not configured");
+  // Step 3: Redeem permission (server-side execution)
+  const redeemPermission = useCallback(
+    async (amount?: string, recipient?: string) => {
+      if (!address) {
+        setError("Wallet not connected");
+        return;
       }
 
-      const bundlerClient = createBundlerClient({
-        transport: http(`https://api.pimlico.io/v2/${sepolia.id}/rpc?apikey=${pimlicoKey}`),
-        paymaster: true,
-      }).extend(erc7710BundlerActions());
+      setIsLoading(true);
+      setError(null);
+      setTxHash(null);
 
-      const publicClient = createPublicClient({
-        chain: sepolia,
-        transport: http(),
-      });
+      try {
+        const response = await fetch("/api/permissions/redeem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: address,
+            amount,
+            recipient,
+          }),
+        });
 
-      const pimlicoClient = createPimlicoClient({
-        transport: http(`https://api.pimlico.io/v2/${sepolia.id}/rpc?apikey=${pimlicoKey}`),
-      });
+        const data = await response.json();
 
-      const { fast: fee } = await pimlicoClient.getUserOperationGasPrice();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to redeem permission");
+        }
 
-      const hash = await bundlerClient.sendUserOperationWithDelegation({
-        publicClient,
-        account: sessionAccount,
-        calls: [
-          {
-            to: sessionAccount.address as Hex,
-            value: parseEther("0.0000001"),
-            permissionsContext: grantedPermissions[0].context,
-            delegationManager: grantedPermissions[0].signer.data.address,
-          },
-        ],
-        ...fee,
-      });
-
-      const { receipt } = await bundlerClient.waitForUserOperationReceipt({
-        hash,
-      });
-
-      setTxHash(receipt.transactionHash);
-    } catch (err: any) {
-      setError(err.message || "Failed to redeem permission");
-      console.error("Permission redeem error:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [grantedPermissions, sessionAccount]);
+        setTxHash(data.transactionHash);
+        console.log("✅ Permission redeemed successfully:", data.transactionHash);
+      } catch (err: any) {
+        setError(err.message || "Failed to redeem permission");
+        console.error("Permission redeem error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [address],
+  );
 
   return {
     grantedPermissions,
     isLoading,
     error,
     txHash,
+    sessionAccountAddress,
+    createSession,
     requestPermission,
     redeemPermission,
   };
