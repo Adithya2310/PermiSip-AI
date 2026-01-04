@@ -1,0 +1,1347 @@
+{
+  "address": "0xb62C526E8bE91923C8fFBa208908125e59712D73",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_aave",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_compound",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_uniswap",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "agent",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AgentPaymentExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "DepositExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ExpertAgentAddressUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "protocol",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "FundsAllocated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "duration",
+          "type": "uint256"
+        }
+      ],
+      "name": "LegacySIPCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "PlanCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "PlanPaused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "aavePercent",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "compoundPercent",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "uniswapPercent",
+          "type": "uint8"
+        }
+      ],
+      "name": "PlanRebalanced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "PlanResumed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "monthlyAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "SIPCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "NATIVE_ETH",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "USDC",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "aave",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cancelPlan",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelPlanById",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "compound",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monthlyAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "duration",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "aavePercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "compoundPercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "uniswapPercent",
+          "type": "uint8"
+        }
+      ],
+      "name": "createSIPPlan",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monthlyAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "aavePercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "compoundPercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "uniswapPercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "enableRebalancing",
+          "type": "bool"
+        }
+      ],
+      "name": "createSIPPlanWithId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "depositForUser",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "depositToPlan",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "expertAgentAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getPlan",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "planId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "monthlyAmount",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint8",
+                  "name": "aavePercent",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "compoundPercent",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "uniswapPercent",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct PermiSIPAI.Strategy",
+              "name": "strategy",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalDeposited",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastDepositTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "rebalancingEnabled",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct PermiSIPAI.SIPPlan",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPlanById",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "planId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "monthlyAmount",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint8",
+                  "name": "aavePercent",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "compoundPercent",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "uniswapPercent",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct PermiSIPAI.Strategy",
+              "name": "strategy",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalDeposited",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastDepositTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "rebalancingEnabled",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct PermiSIPAI.SIPPlan",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserPlanIds",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "legacyUserPlans",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monthlyAmount",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint8",
+              "name": "aavePercent",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "compoundPercent",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "uniswapPercent",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct PermiSIPAI.Strategy",
+          "name": "strategy",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalDeposited",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastDepositTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "createdAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "rebalancingEnabled",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pausePlan",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "pausePlanById",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "newAavePercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "newCompoundPercent",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "newUniswapPercent",
+          "type": "uint8"
+        }
+      ],
+      "name": "rebalance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "resumePlan",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        }
+      ],
+      "name": "resumePlanById",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_expertAgentAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setExpertAgentAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "enabled",
+          "type": "bool"
+        }
+      ],
+      "name": "setRebalancing",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "uniswap",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "userPlanIds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "userPlans",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "planId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monthlyAmount",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint8",
+              "name": "aavePercent",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "compoundPercent",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "uniswapPercent",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct PermiSIPAI.Strategy",
+          "name": "strategy",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalDeposited",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastDepositTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "createdAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "rebalancingEnabled",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0xbb35b5bddc72a96551a1cfeb050bac7d93ad144657cc194d102356530271077c",
+  "receipt": {
+    "to": null,
+    "from": "0x15ac9ed46c545D594B57aFe20F0f268F182A481f",
+    "contractAddress": "0xb62C526E8bE91923C8fFBa208908125e59712D73",
+    "transactionIndex": 56,
+    "gasUsed": "2010345",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x1ea54e7562e8b025ac8deaf792b73809924019b79ea4b83db2193489e51dd890",
+    "transactionHash": "0xbb35b5bddc72a96551a1cfeb050bac7d93ad144657cc194d102356530271077c",
+    "logs": [],
+    "blockNumber": 9976835,
+    "cumulativeGasUsed": "8958331",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xe13bDfFa500c9be38fF4954Dac94e5eB412C6079",
+    "0x410b3776A0e4a2d7F322d06EaBd7448875B98dc4",
+    "0xcB5899B48E9c052c02Df0a5E5117E945a2c03fCf"
+  ],
+  "numDeployments": 2,
+  "solcInputHash": "97ef6a188c2f01c257cb04d7babfd742",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_aave\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_compound\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_uniswap\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"agent\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"AgentPaymentExecuted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"DepositExecuted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"ExpertAgentAddressUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"protocol\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"FundsAllocated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"name\":\"LegacySIPCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"PlanCancelled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"PlanPaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"}],\"name\":\"PlanRebalanced\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"PlanResumed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"}],\"name\":\"SIPCreated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"NATIVE_ETH\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDC\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"aave\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancelPlan\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"cancelPlanById\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"compound\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"totalAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"}],\"name\":\"createSIPPlan\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"},{\"internalType\":\"bool\",\"name\":\"enableRebalancing\",\"type\":\"bool\"}],\"name\":\"createSIPPlanWithId\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"depositForUser\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"depositToPlan\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"expertAgentAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"getPlan\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"}],\"internalType\":\"struct PermiSIPAI.Strategy\",\"name\":\"strategy\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"totalDeposited\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lastDepositTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"active\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"rebalancingEnabled\",\"type\":\"bool\"}],\"internalType\":\"struct PermiSIPAI.SIPPlan\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"getPlanById\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"}],\"internalType\":\"struct PermiSIPAI.Strategy\",\"name\":\"strategy\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"totalDeposited\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lastDepositTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"active\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"rebalancingEnabled\",\"type\":\"bool\"}],\"internalType\":\"struct PermiSIPAI.SIPPlan\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"getUserPlanIds\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"legacyUserPlans\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"}],\"internalType\":\"struct PermiSIPAI.Strategy\",\"name\":\"strategy\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"totalDeposited\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lastDepositTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"active\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"rebalancingEnabled\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pausePlan\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"pausePlanById\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"newAavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"newCompoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"newUniswapPercent\",\"type\":\"uint8\"}],\"name\":\"rebalance\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"resumePlan\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"}],\"name\":\"resumePlanById\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_expertAgentAddress\",\"type\":\"address\"}],\"name\":\"setExpertAgentAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"setRebalancing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"uniswap\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"userPlanIds\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"userPlans\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"planId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"monthlyAmount\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint8\",\"name\":\"aavePercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"compoundPercent\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"uniswapPercent\",\"type\":\"uint8\"}],\"internalType\":\"struct PermiSIPAI.Strategy\",\"name\":\"strategy\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"totalDeposited\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lastDepositTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"active\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"rebalancingEnabled\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\"Uses ERC-7715 permissions for automated USDC investments      SIP investments use USDC, Agent payments use ETH\",\"kind\":\"dev\",\"methods\":{\"cancelPlanById(uint256)\":{\"params\":{\"planId\":\"The plan ID to cancel\"}},\"createSIPPlanWithId(uint256,uint256,uint8,uint8,uint8,bool)\":{\"params\":{\"aavePercent\":\"Percentage allocation to Aave\",\"compoundPercent\":\"Percentage allocation to Compound\",\"enableRebalancing\":\"Whether to enable AI rebalancing\",\"monthlyAmount\":\"Monthly investment amount\",\"planId\":\"The database plan ID for reference\",\"uniswapPercent\":\"Percentage allocation to Uniswap\"}},\"depositForUser(address,uint256)\":{\"details\":\"Used by the server after executing SIP via spend permissions\",\"params\":{\"planId\":\"The plan ID to deposit to\",\"user\":\"The user whose plan to deposit to\"}},\"depositToPlan(uint256)\":{\"params\":{\"planId\":\"The plan ID to execute deposit for\"}},\"pausePlanById(uint256)\":{\"params\":{\"planId\":\"The plan ID to pause\"}},\"rebalance(address,uint256,uint8,uint8,uint8)\":{\"details\":\"Called by the owner (server) after AI generates new strategy\",\"params\":{\"newAavePercent\":\"New percentage allocation to Aave\",\"newCompoundPercent\":\"New percentage allocation to Compound\",\"newUniswapPercent\":\"New percentage allocation to Uniswap\",\"planId\":\"The plan ID to rebalance\",\"user\":\"The user whose plan is being rebalanced\"}},\"resumePlanById(uint256)\":{\"params\":{\"planId\":\"The plan ID to resume\"}},\"setRebalancing(uint256,bool)\":{\"params\":{\"enabled\":\"Whether to enable rebalancing\",\"planId\":\"The plan ID\"}}},\"title\":\"PermiSIPAI\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"cancelPlan()\":{\"notice\":\"Cancel a SIP plan (legacy)\"},\"cancelPlanById(uint256)\":{\"notice\":\"Cancel a specific plan\"},\"createSIPPlan(uint256,uint256,uint256,uint8,uint8,uint8)\":{\"notice\":\"Create a SIP plan (legacy - single plan per user)\"},\"createSIPPlanWithId(uint256,uint256,uint8,uint8,uint8,bool)\":{\"notice\":\"Create a new SIP plan for a user with plan ID and rebalancing option\"},\"depositForUser(address,uint256)\":{\"notice\":\"Deposit ETH on behalf of a user's plan (only owner/server can call)\"},\"depositToPlan(uint256)\":{\"notice\":\"Execute a deposit for a specific plan (user must call directly)\"},\"getPlan(address)\":{\"notice\":\"Get a user's SIP plan (legacy)\"},\"getPlanById(address,uint256)\":{\"notice\":\"Get a user's SIP plan by ID\"},\"getUserPlanIds(address)\":{\"notice\":\"Get all plan IDs for a user\"},\"pausePlan()\":{\"notice\":\"Pause a SIP plan (legacy)\"},\"pausePlanById(uint256)\":{\"notice\":\"Pause a specific plan\"},\"rebalance(address,uint256,uint8,uint8,uint8)\":{\"notice\":\"Rebalance a user's SIP plan with new strategy allocation\"},\"resumePlan()\":{\"notice\":\"Resume a paused SIP plan (legacy)\"},\"resumePlanById(uint256)\":{\"notice\":\"Resume a paused plan\"},\"setExpertAgentAddress(address)\":{\"notice\":\"Set the expert agent address for AI payments\"},\"setRebalancing(uint256,bool)\":{\"notice\":\"Toggle rebalancing for a plan\"},\"transferOwnership(address)\":{\"notice\":\"Transfer ownership\"}},\"notice\":\"Main contract for PermiSIP AI DeFAI automation using MetaMask Advanced Permissions\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/PermiSIPAI.sol\":\"PermiSIPAI\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/PermiSIPAI.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// Contract Address: 0x82adEeeFE3f79D0d459878F36B44CD178080013d\\npragma solidity ^0.8.20;\\n\\n/**\\n * @title IERC20\\n * @notice Minimal ERC20 interface for token transfers\\n */\\ninterface IERC20 {\\n    function transfer(address to, uint256 amount) external returns (bool);\\n    function transferFrom(address from, address to, uint256 amount) external returns (bool);\\n    function balanceOf(address account) external view returns (uint256);\\n    function approve(address spender, uint256 amount) external returns (bool);\\n}\\n\\n/**\\n * @title PermiSIPAI\\n * @notice Main contract for PermiSIP AI DeFAI automation using MetaMask Advanced Permissions\\n * @dev Uses ERC-7715 permissions for automated USDC investments\\n *      SIP investments use USDC, Agent payments use ETH\\n */\\ncontract PermiSIPAI {\\n    struct Strategy {\\n        uint8 aavePercent;\\n        uint8 compoundPercent;\\n        uint8 uniswapPercent;\\n    }\\n\\n    struct SIPPlan {\\n        address user;\\n        uint256 planId;           // Database plan ID for reference\\n        uint256 monthlyAmount;    // Amount in USDC (6 decimals) or ETH\\n        Strategy strategy;\\n        uint256 totalDeposited;\\n        uint256 lastDepositTime;\\n        uint256 createdAt;\\n        bool active;\\n        bool rebalancingEnabled;  // Whether AI rebalancing is enabled\\n    }\\n\\n    // User address => Plan ID => SIPPlan (users can have multiple plans)\\n    mapping(address => mapping(uint256 => SIPPlan)) public userPlans;\\n    // User address => array of plan IDs\\n    mapping(address => uint256[]) public userPlanIds;\\n    // Legacy: User address => single plan (for backward compatibility)\\n    mapping(address => SIPPlan) public legacyUserPlans;\\n    \\n    address public aave;\\n    address public compound;\\n    address public uniswap;\\n    address public owner;\\n    \\n    // USDC token address on Sepolia\\n    address public constant USDC = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238;\\n    \\n    // Native ETH address constant (ERC-7528)\\n    address public constant NATIVE_ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;\\n    \\n    // Expert agent address for AI payments\\n    address public expertAgentAddress;\\n\\n    event SIPCreated(address indexed user, uint256 indexed planId, uint256 monthlyAmount);\\n    event DepositExecuted(address indexed user, uint256 indexed planId, uint256 amount);\\n    event FundsAllocated(address indexed protocol, uint256 amount);\\n    event PlanCancelled(address indexed user, uint256 indexed planId);\\n    event PlanPaused(address indexed user, uint256 indexed planId);\\n    event PlanResumed(address indexed user, uint256 indexed planId);\\n    event PlanRebalanced(address indexed user, uint256 indexed planId, uint8 aavePercent, uint8 compoundPercent, uint8 uniswapPercent);\\n    event AgentPaymentExecuted(address indexed user, address indexed agent, uint256 amount);\\n    event ExpertAgentAddressUpdated(address indexed oldAddress, address indexed newAddress);\\n    // Legacy events for backward compatibility\\n    event LegacySIPCreated(address indexed user, uint256 totalAmount, uint256 duration);\\n\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"Only owner\\\");\\n        _;\\n    }\\n\\n    constructor(address _aave, address _compound, address _uniswap) {\\n        aave = _aave;\\n        compound = _compound;\\n        uniswap = _uniswap;\\n        owner = msg.sender;\\n    }\\n\\n    // ============================================\\n    // NEW PLAN-ID BASED FUNCTIONS (Multi-plan support)\\n    // ============================================\\n\\n    /**\\n     * @notice Create a new SIP plan for a user with plan ID and rebalancing option\\n     * @param planId The database plan ID for reference\\n     * @param monthlyAmount Monthly investment amount\\n     * @param aavePercent Percentage allocation to Aave\\n     * @param compoundPercent Percentage allocation to Compound\\n     * @param uniswapPercent Percentage allocation to Uniswap\\n     * @param enableRebalancing Whether to enable AI rebalancing\\n     */\\n    function createSIPPlanWithId(\\n        uint256 planId,\\n        uint256 monthlyAmount,\\n        uint8 aavePercent,\\n        uint8 compoundPercent,\\n        uint8 uniswapPercent,\\n        bool enableRebalancing\\n    ) external {\\n        require(monthlyAmount > 0, \\\"Monthly amount must be greater than 0\\\");\\n        require(aavePercent + compoundPercent + uniswapPercent == 100, \\\"Percents must sum to 100\\\");\\n        require(userPlans[msg.sender][planId].createdAt == 0, \\\"Plan already exists\\\");\\n\\n        Strategy memory strategy = Strategy({\\n            aavePercent: aavePercent,\\n            compoundPercent: compoundPercent,\\n            uniswapPercent: uniswapPercent\\n        });\\n\\n        userPlans[msg.sender][planId] = SIPPlan({\\n            user: msg.sender,\\n            planId: planId,\\n            monthlyAmount: monthlyAmount,\\n            strategy: strategy,\\n            totalDeposited: 0,\\n            lastDepositTime: 0,\\n            createdAt: block.timestamp,\\n            active: true,\\n            rebalancingEnabled: enableRebalancing\\n        });\\n\\n        userPlanIds[msg.sender].push(planId);\\n\\n        emit SIPCreated(msg.sender, planId, monthlyAmount);\\n    }\\n\\n    /**\\n     * @notice Execute a deposit for a specific plan (user must call directly)\\n     * @param planId The plan ID to execute deposit for\\n     */\\n    function depositToPlan(uint256 planId) external payable {\\n        SIPPlan storage plan = userPlans[msg.sender][planId];\\n        require(plan.active, \\\"No active plan\\\");\\n        require(plan.user == msg.sender, \\\"Not plan owner\\\");\\n        require(msg.value > 0, \\\"Must send ETH\\\");\\n\\n        _allocateFundsETH(plan, msg.value);\\n\\n        plan.totalDeposited += msg.value;\\n        plan.lastDepositTime = block.timestamp;\\n\\n        emit DepositExecuted(msg.sender, planId, msg.value);\\n    }\\n\\n    /**\\n     * @notice Deposit ETH on behalf of a user's plan (only owner/server can call)\\n     * @dev Used by the server after executing SIP via spend permissions\\n     * @param user The user whose plan to deposit to\\n     * @param planId The plan ID to deposit to\\n     */\\n    function depositForUser(address user, uint256 planId) external payable onlyOwner {\\n        SIPPlan storage plan = userPlans[user][planId];\\n        require(plan.createdAt > 0, \\\"Plan does not exist\\\");\\n        require(plan.active, \\\"Plan not active\\\");\\n        require(msg.value > 0, \\\"Must send ETH\\\");\\n\\n        _allocateFundsETH(plan, msg.value);\\n\\n        plan.totalDeposited += msg.value;\\n        plan.lastDepositTime = block.timestamp;\\n\\n        emit DepositExecuted(user, planId, msg.value);\\n    }\\n\\n    /**\\n     * @notice Rebalance a user's SIP plan with new strategy allocation\\n     * @dev Called by the owner (server) after AI generates new strategy\\n     * @param user The user whose plan is being rebalanced\\n     * @param planId The plan ID to rebalance\\n     * @param newAavePercent New percentage allocation to Aave\\n     * @param newCompoundPercent New percentage allocation to Compound\\n     * @param newUniswapPercent New percentage allocation to Uniswap\\n     */\\n    function rebalance(\\n        address user,\\n        uint256 planId,\\n        uint8 newAavePercent,\\n        uint8 newCompoundPercent,\\n        uint8 newUniswapPercent\\n    ) external onlyOwner {\\n        SIPPlan storage plan = userPlans[user][planId];\\n        require(plan.active, \\\"No active plan\\\");\\n        require(plan.user == user, \\\"User mismatch\\\");\\n        require(plan.rebalancingEnabled, \\\"Rebalancing not enabled\\\");\\n        require(newAavePercent + newCompoundPercent + newUniswapPercent == 100, \\\"Percents must sum to 100\\\");\\n\\n        plan.strategy.aavePercent = newAavePercent;\\n        plan.strategy.compoundPercent = newCompoundPercent;\\n        plan.strategy.uniswapPercent = newUniswapPercent;\\n\\n        emit PlanRebalanced(user, planId, newAavePercent, newCompoundPercent, newUniswapPercent);\\n    }\\n\\n    /**\\n     * @notice Toggle rebalancing for a plan\\n     * @param planId The plan ID\\n     * @param enabled Whether to enable rebalancing\\n     */\\n    function setRebalancing(uint256 planId, bool enabled) external {\\n        SIPPlan storage plan = userPlans[msg.sender][planId];\\n        require(plan.createdAt > 0, \\\"Plan does not exist\\\");\\n        require(plan.user == msg.sender, \\\"Not plan owner\\\");\\n        \\n        plan.rebalancingEnabled = enabled;\\n    }\\n\\n    /**\\n     * @notice Cancel a specific plan\\n     * @param planId The plan ID to cancel\\n     */\\n    function cancelPlanById(uint256 planId) external {\\n        SIPPlan storage plan = userPlans[msg.sender][planId];\\n        require(plan.active, \\\"No active plan\\\");\\n        require(plan.user == msg.sender, \\\"Not plan owner\\\");\\n\\n        plan.active = false;\\n        emit PlanCancelled(msg.sender, planId);\\n    }\\n\\n    /**\\n     * @notice Pause a specific plan\\n     * @param planId The plan ID to pause\\n     */\\n    function pausePlanById(uint256 planId) external {\\n        SIPPlan storage plan = userPlans[msg.sender][planId];\\n        require(plan.active, \\\"No active plan\\\");\\n        require(plan.user == msg.sender, \\\"Not plan owner\\\");\\n        \\n        plan.active = false;\\n        emit PlanPaused(msg.sender, planId);\\n    }\\n\\n    /**\\n     * @notice Resume a paused plan\\n     * @param planId The plan ID to resume\\n     */\\n    function resumePlanById(uint256 planId) external {\\n        SIPPlan storage plan = userPlans[msg.sender][planId];\\n        require(plan.createdAt > 0, \\\"Plan does not exist\\\");\\n        require(plan.user == msg.sender, \\\"Not plan owner\\\");\\n        require(!plan.active, \\\"Plan already active\\\");\\n        \\n        plan.active = true;\\n        emit PlanResumed(msg.sender, planId);\\n    }\\n\\n    /**\\n     * @notice Get a user's SIP plan by ID\\n     */\\n    function getPlanById(address user, uint256 planId) external view returns (SIPPlan memory) {\\n        return userPlans[user][planId];\\n    }\\n\\n    /**\\n     * @notice Get all plan IDs for a user\\n     */\\n    function getUserPlanIds(address user) external view returns (uint256[] memory) {\\n        return userPlanIds[user];\\n    }\\n\\n    // ============================================\\n    // LEGACY FUNCTIONS (Backward compatibility)\\n    // ============================================\\n\\n    /**\\n     * @notice Create a SIP plan (legacy - single plan per user)\\n     */\\n    function createSIPPlan(\\n        uint256 totalAmount,\\n        uint256 monthlyAmount,\\n        uint256 duration,\\n        uint8 aavePercent,\\n        uint8 compoundPercent,\\n        uint8 uniswapPercent\\n    ) external payable {\\n        require(msg.value == totalAmount, \\\"Send correct ETH amount\\\");\\n        require(monthlyAmount <= totalAmount, \\\"Monthly amount exceeds total\\\");\\n        require(aavePercent + compoundPercent + uniswapPercent == 100, \\\"Percents must sum to 100\\\");\\n        require(!legacyUserPlans[msg.sender].active, \\\"Plan already exists\\\");\\n\\n        Strategy memory strategy = Strategy({\\n            aavePercent: aavePercent,\\n            compoundPercent: compoundPercent,\\n            uniswapPercent: uniswapPercent\\n        });\\n\\n        legacyUserPlans[msg.sender] = SIPPlan({\\n            user: msg.sender,\\n            planId: 0,\\n            monthlyAmount: monthlyAmount,\\n            strategy: strategy,\\n            totalDeposited: 0,\\n            lastDepositTime: 0,\\n            createdAt: block.timestamp,\\n            active: true,\\n            rebalancingEnabled: false\\n        });\\n\\n        emit LegacySIPCreated(msg.sender, totalAmount, duration);\\n\\n        // Execute first deposit immediately\\n        _executeDeposit(msg.sender, totalAmount);\\n    }\\n\\n    function _executeDeposit(address user, uint256 amount) internal {\\n        SIPPlan storage plan = legacyUserPlans[user];\\n        require(plan.active, \\\"No active plan\\\");\\n\\n        _allocateFundsETH(plan, amount);\\n\\n        plan.totalDeposited += amount;\\n        plan.lastDepositTime = block.timestamp;\\n\\n        emit DepositExecuted(user, 0, amount);\\n    }\\n\\n    /**\\n     * @notice Internal function to allocate ETH funds to protocols based on strategy\\n     */\\n    function _allocateFundsETH(SIPPlan storage plan, uint256 amount) internal {\\n        // Calculate amounts for each protocol\\n        uint256 aaveAmount = (amount * plan.strategy.aavePercent) / 100;\\n        uint256 compoundAmount = (amount * plan.strategy.compoundPercent) / 100;\\n        uint256 uniswapAmount = (amount * plan.strategy.uniswapPercent) / 100;\\n\\n        // Send to mock protocols\\n        if (aaveAmount > 0) {\\n            (bool success1, ) = aave.call{value: aaveAmount}(\\\"\\\");\\n            require(success1, \\\"Aave deposit failed\\\");\\n            emit FundsAllocated(aave, aaveAmount);\\n        }\\n\\n        if (compoundAmount > 0) {\\n            (bool success2, ) = compound.call{value: compoundAmount}(\\\"\\\");\\n            require(success2, \\\"Compound deposit failed\\\");\\n            emit FundsAllocated(compound, compoundAmount);\\n        }\\n\\n        if (uniswapAmount > 0) {\\n            (bool success3, ) = uniswap.call{value: uniswapAmount}(\\\"\\\");\\n            require(success3, \\\"Uniswap deposit failed\\\");\\n            emit FundsAllocated(uniswap, uniswapAmount);\\n        }\\n    }\\n\\n    /**\\n     * @notice Internal function to allocate USDC funds to protocols based on strategy\\n     */\\n    function _allocateFundsUSDC(SIPPlan storage plan, uint256 amount) internal {\\n        // Calculate amounts for each protocol\\n        uint256 aaveAmount = (amount * plan.strategy.aavePercent) / 100;\\n        uint256 compoundAmount = (amount * plan.strategy.compoundPercent) / 100;\\n        uint256 uniswapAmount = (amount * plan.strategy.uniswapPercent) / 100;\\n\\n        IERC20 usdc = IERC20(USDC);\\n\\n        // Transfer USDC to protocols\\n        if (aaveAmount > 0) {\\n            require(usdc.transfer(aave, aaveAmount), \\\"Aave transfer failed\\\");\\n            emit FundsAllocated(aave, aaveAmount);\\n        }\\n\\n        if (compoundAmount > 0) {\\n            require(usdc.transfer(compound, compoundAmount), \\\"Compound transfer failed\\\");\\n            emit FundsAllocated(compound, compoundAmount);\\n        }\\n\\n        if (uniswapAmount > 0) {\\n            require(usdc.transfer(uniswap, uniswapAmount), \\\"Uniswap transfer failed\\\");\\n            emit FundsAllocated(uniswap, uniswapAmount);\\n        }\\n    }\\n\\n    /**\\n     * @notice Get a user's SIP plan (legacy)\\n     */\\n    function getPlan(address user) external view returns (SIPPlan memory) {\\n        return legacyUserPlans[user];\\n    }\\n\\n    /**\\n     * @notice Cancel a SIP plan (legacy)\\n     */\\n    function cancelPlan() external {\\n        SIPPlan storage plan = legacyUserPlans[msg.sender];\\n        require(plan.active, \\\"No active plan\\\");\\n\\n        plan.active = false;\\n        emit PlanCancelled(msg.sender, 0);\\n    }\\n\\n    /**\\n     * @notice Pause a SIP plan (legacy)\\n     */\\n    function pausePlan() external {\\n        SIPPlan storage plan = legacyUserPlans[msg.sender];\\n        require(plan.active, \\\"No active plan\\\");\\n        \\n        plan.active = false;\\n        emit PlanPaused(msg.sender, 0);\\n    }\\n\\n    /**\\n     * @notice Resume a paused SIP plan (legacy)\\n     */\\n    function resumePlan() external {\\n        SIPPlan storage plan = legacyUserPlans[msg.sender];\\n        require(!plan.active, \\\"Plan already active\\\");\\n        require(plan.user == msg.sender, \\\"No plan found\\\");\\n        \\n        plan.active = true;\\n        emit PlanResumed(msg.sender, 0);\\n    }\\n\\n    // ============================================\\n    // OWNER FUNCTIONS\\n    // ============================================\\n\\n    /**\\n     * @notice Set the expert agent address for AI payments\\n     */\\n    function setExpertAgentAddress(address _expertAgentAddress) external onlyOwner {\\n        address oldAddress = expertAgentAddress;\\n        expertAgentAddress = _expertAgentAddress;\\n        emit ExpertAgentAddressUpdated(oldAddress, _expertAgentAddress);\\n    }\\n\\n    /**\\n     * @notice Transfer ownership\\n     */\\n    function transferOwnership(address newOwner) external onlyOwner {\\n        require(newOwner != address(0), \\\"Invalid address\\\");\\n        owner = newOwner;\\n    }\\n\\n    receive() external payable {}\\n}\",\"keccak256\":\"0xd01565e27bdfad74e93ce53ccd2084fb48ff17826ceadeb0178ad866eb46693f\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60806040523480156200001157600080fd5b50604051620022b2380380620022b28339810160408190526200003491620000a1565b600380546001600160a01b039485166001600160a01b03199182161790915560048054938516938216939093179092556005805491909316908216179091556006805490911633179055620000eb565b80516001600160a01b03811681146200009c57600080fd5b919050565b600080600060608486031215620000b757600080fd5b620000c28462000084565b9250620000d26020850162000084565b9150620000e26040850162000084565b90509250925092565b6121b780620000fb6000396000f3fe6080604052600436106101a05760003560e01c8063831820f0116100ec578063cbd076f81161008a578063f2fde38b11610064578063f2fde38b1461062d578063f69e20461461064d578063f75b4ddd1461066d578063f821e1ab1461068257600080fd5b8063cbd076f8146105bf578063cff979a6146105d2578063e4b605401461060057600080fd5b80638da5cb5b116100c65780638da5cb5b1461053f5780639a04486b1461055f578063af0349261461057f578063bc1ad7a41461059f57600080fd5b8063831820f01461045c57806389a30271146105045780638c2e02de1461052c57600080fd5b80633af3be64116101595780636752902e116101335780636752902e146103dc5780637cb22aaf146103fc5780637d8c91791461041c578063819faf7b1461043c57600080fd5b80633af3be64146102a057806346c50121146102b357806363d4ab24146102c857600080fd5b8063011e1167146101ac5780631adbf122146101f15780632313db1c1461021e5780632681f7e41461024057806327adf7031461026057806336de6cdf1461028057600080fd5b366101a757005b600080fd5b3480156101b857600080fd5b506101d473eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee81565b6040516001600160a01b0390911681526020015b60405180910390f35b3480156101fd57600080fd5b5061021161020c366004611d7b565b610697565b6040516101e89190611da5565b34801561022a57600080fd5b5061023e610239366004611e4b565b61075b565b005b34801561024c57600080fd5b506005546101d4906001600160a01b031681565b34801561026c57600080fd5b506007546101d4906001600160a01b031681565b34801561028c57600080fd5b5061023e61029b366004611e74565b610806565b61023e6102ae366004611eb1565b610884565b3480156102bf57600080fd5b5061023e610bc2565b3480156102d457600080fd5b506103686102e3366004611f10565b60026020818152600092835260409283902080546001820154938201548551606081018752600384015460ff8082168352610100808304821697840197909752620100009091048116978201979097526004840154600585015460068601546007909601546001600160a01b0390951698939692959194909391928183169291041689565b604080516001600160a01b03909a168a526020808b019990995289810197909752855160ff90811660608b015297860151881660808a0152949095015190951660a087015260c086019190915260e085015261010084019290925215156101208301521515610140820152610160016101e8565b3480156103e857600080fd5b5061023e6103f7366004611f10565b610ca4565b34801561040857600080fd5b50610211610417366004611f10565b610d20565b34801561042857600080fd5b5061023e610437366004611e4b565b610ddb565b34801561044857600080fd5b506003546101d4906001600160a01b031681565b34801561046857600080fd5b50610368610477366004611d7b565b60006020818152928152604080822084529181528190208054600182015460028301548451606081018652600385015460ff8082168352610100808304821699840199909952620100009091048116968201969096526004850154600586015460068701546007909701546001600160a01b03909616989497939692959194909382811692919091041689565b34801561051057600080fd5b506101d4731c7d4b196cb0c7b01d743fbc6116a902379c723881565b61023e61053a366004611e4b565b610ec8565b34801561054b57600080fd5b506006546101d4906001600160a01b031681565b34801561056b57600080fd5b5061023e61057a366004611e4b565b610fd1565b34801561058b57600080fd5b5061023e61059a366004611f32565b611073565b3480156105ab57600080fd5b5061023e6105ba366004611f8c565b6113be565b61023e6105cd366004611d7b565b611592565b3480156105de57600080fd5b506105f26105ed366004611d7b565b6116f3565b6040519081526020016101e8565b34801561060c57600080fd5b5061062061061b366004611f10565b611724565b6040516101e89190611fea565b34801561063957600080fd5b5061023e610648366004611f10565b611790565b34801561065957600080fd5b506004546101d4906001600160a01b031681565b34801561067957600080fd5b5061023e611824565b34801561068e57600080fd5b5061023e611893565b61069f611cdb565b506001600160a01b0380831660009081526020818152604080832085845282529182902082516101208101845281549094168452600181015484830152600281015484840152825160608181018552600383015460ff80821684526101008083048216968501969096526201000090910481169583019590955285015260048101546080850152600581015460a0850152600681015460c085015260070154808316151560e08501528190049091161515908201525b92915050565b336000908152602081815260408083208484529091529020600781015460ff166107a05760405162461bcd60e51b81526004016107979061202e565b60405180910390fd5b80546001600160a01b031633146107c95760405162461bcd60e51b815260040161079790612056565b60078101805460ff19169055604051829033907f3ee9ca28321072883626157ba61d1c97dbb201875f5b65ab4d78f77fc316a31c90600090a35050565b336000908152602081815260408083208584529091529020600681015461083f5760405162461bcd60e51b81526004016107979061207e565b80546001600160a01b031633146108685760405162461bcd60e51b815260040161079790612056565b60070180549115156101000261ff001990921691909117905550565b8534146108d35760405162461bcd60e51b815260206004820152601760248201527f53656e6420636f72726563742045544820616d6f756e740000000000000000006044820152606401610797565b858511156109235760405162461bcd60e51b815260206004820152601c60248201527f4d6f6e74686c7920616d6f756e74206578636565647320746f74616c000000006044820152606401610797565b8061092e83856120c1565b61093891906120c1565b60ff1660641461095a5760405162461bcd60e51b8152600401610797906120da565b3360009081526002602052604090206007015460ff16156109b35760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792065786973747360681b6044820152606401610797565b600060405180606001604052808560ff1681526020018460ff1681526020018360ff168152509050604051806101200160405280336001600160a01b031681526020016000815260200187815260200182815260200160008152602001600081526020014281526020016001151581526020016000151581525060026000336001600160a01b03166001600160a01b0316815260200190815260200160002060008201518160000160006101000a8154816001600160a01b0302191690836001600160a01b03160217905550602082015181600101556040820151816002015560608201518160030160008201518160000160006101000a81548160ff021916908360ff16021790555060208201518160000160016101000a81548160ff021916908360ff16021790555060408201518160000160026101000a81548160ff021916908360ff16021790555050506080820151816004015560a0820151816005015560c0820151816006015560e08201518160070160006101000a81548160ff0219169083151502179055506101008201518160070160016101000a81548160ff021916908315150217905550905050336001600160a01b03167fc0bb35bcce58b1304817e85ccc9051e39c0e017093c16aa09c4408a40763f43f8887604051610ba7929190918252602082015260400190565b60405180910390a2610bb93388611902565b50505050505050565b336000908152600260205260409020600781015460ff1615610c1c5760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792061637469766560681b6044820152606401610797565b80546001600160a01b03163314610c655760405162461bcd60e51b815260206004820152600d60248201526c139bc81c1b185b88199bdd5b99609a1b6044820152606401610797565b60078101805460ff1916600117905560405160009033907f64bf4125848d90010c24cc30cdbcb050b80009b859b208313f6259c7dc12d994908390a350565b6006546001600160a01b03163314610cce5760405162461bcd60e51b815260040161079790612111565b600780546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8afc512c0bdd152ae40fb1548f4014dfaf323edbd91e8397519d5d586c9586bc90600090a35050565b610d28611cdb565b506001600160a01b03908116600090815260026020818152604092839020835161012081018552815490951685526001810154858301529182015484840152825160608181018552600384015460ff80821684526101008083048216958501959095526201000090910481169583019590955285015260048201546080850152600582015460a0850152600682015460c0850152600790910154808316151560e085015281900490911615159082015290565b3360009081526020818152604080832084845290915290206006810154610e145760405162461bcd60e51b81526004016107979061207e565b80546001600160a01b03163314610e3d5760405162461bcd60e51b815260040161079790612056565b600781015460ff1615610e885760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792061637469766560681b6044820152606401610797565b60078101805460ff19166001179055604051829033907f64bf4125848d90010c24cc30cdbcb050b80009b859b208313f6259c7dc12d99490600090a35050565b336000908152602081815260408083208484529091529020600781015460ff16610f045760405162461bcd60e51b81526004016107979061202e565b80546001600160a01b03163314610f2d5760405162461bcd60e51b815260040161079790612056565b60003411610f6d5760405162461bcd60e51b815260206004820152600d60248201526c09aeae6e840e6cadcc8408aa89609b1b6044820152606401610797565b610f7781346119a5565b34816004016000828254610f8b9190612135565b9091555050426005820155604051348152829033907fcf75a80a22cde0edcefe708f860e644c73eb8921aac7890f3bec010eef965f649060200160405180910390a35050565b336000908152602081815260408083208484529091529020600781015460ff1661100d5760405162461bcd60e51b81526004016107979061202e565b80546001600160a01b031633146110365760405162461bcd60e51b815260040161079790612056565b60078101805460ff19169055604051829033907f0f0575314e9a6c84f2bff03b4ceae4b5d4ca0fe92bff1acb153f13e5e36db71f90600090a35050565b600085116110d15760405162461bcd60e51b815260206004820152602560248201527f4d6f6e74686c7920616d6f756e74206d75737420626520677265617465722074604482015264068616e20360dc1b6064820152608401610797565b816110dc84866120c1565b6110e691906120c1565b60ff166064146111085760405162461bcd60e51b8152600401610797906120da565b33600090815260208181526040808320898452909152902060060154156111675760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792065786973747360681b6044820152606401610797565b600060405180606001604052808660ff1681526020018560ff1681526020018460ff168152509050604051806101200160405280336001600160a01b031681526020018881526020018781526020018281526020016000815260200160008152602001428152602001600115158152602001831515815250600080336001600160a01b03166001600160a01b03168152602001908152602001600020600089815260200190815260200160002060008201518160000160006101000a8154816001600160a01b0302191690836001600160a01b03160217905550602082015181600101556040820151816002015560608201518160030160008201518160000160006101000a81548160ff021916908360ff16021790555060208201518160000160016101000a81548160ff021916908360ff16021790555060408201518160000160026101000a81548160ff021916908360ff16021790555050506080820151816004015560a0820151816005015560c0820151816006015560e08201518160070160006101000a81548160ff0219169083151502179055506101008201518160070160016101000a81548160ff02191690831515021790555090505060016000336001600160a01b03166001600160a01b0316815260200190815260200160002087908060018154018082558091505060019003906000526020600020016000909190919091505586336001600160a01b03167f1bd96959e90b965ecd58bac046f8d20f293cf639656f8987da258ccffc324361886040516113ad91815260200190565b60405180910390a350505050505050565b6006546001600160a01b031633146113e85760405162461bcd60e51b815260040161079790612111565b6001600160a01b0385166000908152602081815260408083208784529091529020600781015460ff1661142d5760405162461bcd60e51b81526004016107979061202e565b80546001600160a01b038781169116146114795760405162461bcd60e51b815260206004820152600d60248201526c0aae6cae440dad2e6dac2e8c6d609b1b6044820152606401610797565b6007810154610100900460ff166114d25760405162461bcd60e51b815260206004820152601760248201527f526562616c616e63696e67206e6f7420656e61626c65640000000000000000006044820152606401610797565b816114dd84866120c1565b6114e791906120c1565b60ff166064146115095760405162461bcd60e51b8152600401610797906120da565b60038101805460ff86811661ffff1990921682176101008783169081029190911762ff00001916620100009287169283021790935560408051928352602083019390935281830152905186916001600160a01b038916917f83f5707b16afbeb740e04e10842b33300d6ad2143d8b45de1919450747a0d16d9181900360600190a3505050505050565b6006546001600160a01b031633146115bc5760405162461bcd60e51b815260040161079790612111565b6001600160a01b038216600090815260208181526040808320848452909152902060068101546115fe5760405162461bcd60e51b81526004016107979061207e565b600781015460ff166116445760405162461bcd60e51b815260206004820152600f60248201526e506c616e206e6f742061637469766560881b6044820152606401610797565b600034116116845760405162461bcd60e51b815260206004820152600d60248201526c09aeae6e840e6cadcc8408aa89609b1b6044820152606401610797565b61168e81346119a5565b348160040160008282546116a29190612135565b909155505042600582015560405134815282906001600160a01b038516907fcf75a80a22cde0edcefe708f860e644c73eb8921aac7890f3bec010eef965f64906020015b60405180910390a3505050565b6001602052816000526040600020818154811061170f57600080fd5b90600052602060002001600091509150505481565b6001600160a01b03811660009081526001602090815260409182902080548351818402810184019094528084526060939283018282801561178457602002820191906000526020600020905b815481526020019060010190808311611770575b50505050509050919050565b6006546001600160a01b031633146117ba5760405162461bcd60e51b815260040161079790612111565b6001600160a01b0381166118025760405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206164647265737360881b6044820152606401610797565b600680546001600160a01b0319166001600160a01b0392909216919091179055565b336000908152600260205260409020600781015460ff166118575760405162461bcd60e51b81526004016107979061202e565b60078101805460ff1916905560405160009033907f3ee9ca28321072883626157ba61d1c97dbb201875f5b65ab4d78f77fc316a31c908390a350565b336000908152600260205260409020600781015460ff166118c65760405162461bcd60e51b81526004016107979061202e565b60078101805460ff1916905560405160009033907f0f0575314e9a6c84f2bff03b4ceae4b5d4ca0fe92bff1acb153f13e5e36db71f908390a350565b6001600160a01b0382166000908152600260205260409020600781015460ff1661193e5760405162461bcd60e51b81526004016107979061202e565b61194881836119a5565b8181600401600082825461195c9190612135565b90915550504260058201556040518281526000906001600160a01b038516907fcf75a80a22cde0edcefe708f860e644c73eb8921aac7890f3bec010eef965f64906020016116e6565b60038201546000906064906119bd9060ff1684612148565b6119c7919061215f565b60038401549091506000906064906119e790610100900460ff1685612148565b6119f1919061215f565b6003850154909150600090606490611a129062010000900460ff1686612148565b611a1c919061215f565b90508215611b01576003546040516000916001600160a01b03169085908381818185875af1925050503d8060008114611a71576040519150601f19603f3d011682016040523d82523d6000602084013e611a76565b606091505b5050905080611abd5760405162461bcd60e51b815260206004820152601360248201527210585d994819195c1bdcda5d0819985a5b1959606a1b6044820152606401610797565b6003546040518581526001600160a01b03909116907f870f86672db2c7b197484fa0218e97fe38eb7c89fd39ed2c4c910734c66182f89060200160405180910390a2505b8115611bee576004546040516000916001600160a01b03169084908381818185875af1925050503d8060008114611b54576040519150601f19603f3d011682016040523d82523d6000602084013e611b59565b606091505b5050905080611baa5760405162461bcd60e51b815260206004820152601760248201527f436f6d706f756e64206465706f736974206661696c65640000000000000000006044820152606401610797565b6004546040518481526001600160a01b03909116907f870f86672db2c7b197484fa0218e97fe38eb7c89fd39ed2c4c910734c66182f89060200160405180910390a2505b8015611cd4576005546040516000916001600160a01b03169083908381818185875af1925050503d8060008114611c41576040519150601f19603f3d011682016040523d82523d6000602084013e611c46565b606091505b5050905080611c905760405162461bcd60e51b8152602060048201526016602482015275155b9a5cddd85c0819195c1bdcda5d0819985a5b195960521b6044820152606401610797565b6005546040518381526001600160a01b03909116907f870f86672db2c7b197484fa0218e97fe38eb7c89fd39ed2c4c910734c66182f89060200160405180910390a2505b5050505050565b60405180610120016040528060006001600160a01b031681526020016000815260200160008152602001611d326040518060600160405280600060ff168152602001600060ff168152602001600060ff1681525090565b81526020016000815260200160008152602001600081526020016000151581526020016000151581525090565b80356001600160a01b0381168114611d7657600080fd5b919050565b60008060408385031215611d8e57600080fd5b611d9783611d5f565b946020939093013593505050565b81516001600160a01b031681526020808301519082015260408083015190820152606080830151610160830191611dfe9084018260ff815116825260ff602082015116602083015260ff60408201511660408301525050565b50608083015160c083015260a083015160e083015260c0830151610100818185015260e08501519150611e3661012085018315159052565b84015180151561014085015290505092915050565b600060208284031215611e5d57600080fd5b5035919050565b80358015158114611d7657600080fd5b60008060408385031215611e8757600080fd5b82359150611e9760208401611e64565b90509250929050565b803560ff81168114611d7657600080fd5b60008060008060008060c08789031215611eca57600080fd5b863595506020870135945060408701359350611ee860608801611ea0565b9250611ef660808801611ea0565b9150611f0460a08801611ea0565b90509295509295509295565b600060208284031215611f2257600080fd5b611f2b82611d5f565b9392505050565b60008060008060008060c08789031215611f4b57600080fd5b8635955060208701359450611f6260408801611ea0565b9350611f7060608801611ea0565b9250611f7e60808801611ea0565b9150611f0460a08801611e64565b600080600080600060a08688031215611fa457600080fd5b611fad86611d5f565b945060208601359350611fc260408701611ea0565b9250611fd060608701611ea0565b9150611fde60808701611ea0565b90509295509295909350565b6020808252825182820181905260009190848201906040850190845b8181101561202257835183529284019291840191600101612006565b50909695505050505050565b6020808252600e908201526d27379030b1ba34bb3290383630b760911b604082015260600190565b6020808252600e908201526d2737ba10383630b71037bbb732b960911b604082015260600190565b602080825260139082015272141b185b88191bd95cc81b9bdd08195e1a5cdd606a1b604082015260600190565b634e487b7160e01b600052601160045260246000fd5b60ff8181168382160190811115610755576107556120ab565b60208082526018908201527f50657263656e7473206d7573742073756d20746f203130300000000000000000604082015260600190565b6020808252600a908201526927b7363c9037bbb732b960b11b604082015260600190565b80820180821115610755576107556120ab565b8082028115828204841417610755576107556120ab565b60008261217c57634e487b7160e01b600052601260045260246000fd5b50049056fea26469706673582212207ceaff016bb1d9de460fce2ab5929613c972c4acc555b33e8505c21b72b83dcc64736f6c63430008140033",
+  "deployedBytecode": "0x6080604052600436106101a05760003560e01c8063831820f0116100ec578063cbd076f81161008a578063f2fde38b11610064578063f2fde38b1461062d578063f69e20461461064d578063f75b4ddd1461066d578063f821e1ab1461068257600080fd5b8063cbd076f8146105bf578063cff979a6146105d2578063e4b605401461060057600080fd5b80638da5cb5b116100c65780638da5cb5b1461053f5780639a04486b1461055f578063af0349261461057f578063bc1ad7a41461059f57600080fd5b8063831820f01461045c57806389a30271146105045780638c2e02de1461052c57600080fd5b80633af3be64116101595780636752902e116101335780636752902e146103dc5780637cb22aaf146103fc5780637d8c91791461041c578063819faf7b1461043c57600080fd5b80633af3be64146102a057806346c50121146102b357806363d4ab24146102c857600080fd5b8063011e1167146101ac5780631adbf122146101f15780632313db1c1461021e5780632681f7e41461024057806327adf7031461026057806336de6cdf1461028057600080fd5b366101a757005b600080fd5b3480156101b857600080fd5b506101d473eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee81565b6040516001600160a01b0390911681526020015b60405180910390f35b3480156101fd57600080fd5b5061021161020c366004611d7b565b610697565b6040516101e89190611da5565b34801561022a57600080fd5b5061023e610239366004611e4b565b61075b565b005b34801561024c57600080fd5b506005546101d4906001600160a01b031681565b34801561026c57600080fd5b506007546101d4906001600160a01b031681565b34801561028c57600080fd5b5061023e61029b366004611e74565b610806565b61023e6102ae366004611eb1565b610884565b3480156102bf57600080fd5b5061023e610bc2565b3480156102d457600080fd5b506103686102e3366004611f10565b60026020818152600092835260409283902080546001820154938201548551606081018752600384015460ff8082168352610100808304821697840197909752620100009091048116978201979097526004840154600585015460068601546007909601546001600160a01b0390951698939692959194909391928183169291041689565b604080516001600160a01b03909a168a526020808b019990995289810197909752855160ff90811660608b015297860151881660808a0152949095015190951660a087015260c086019190915260e085015261010084019290925215156101208301521515610140820152610160016101e8565b3480156103e857600080fd5b5061023e6103f7366004611f10565b610ca4565b34801561040857600080fd5b50610211610417366004611f10565b610d20565b34801561042857600080fd5b5061023e610437366004611e4b565b610ddb565b34801561044857600080fd5b506003546101d4906001600160a01b031681565b34801561046857600080fd5b50610368610477366004611d7b565b60006020818152928152604080822084529181528190208054600182015460028301548451606081018652600385015460ff8082168352610100808304821699840199909952620100009091048116968201969096526004850154600586015460068701546007909701546001600160a01b03909616989497939692959194909382811692919091041689565b34801561051057600080fd5b506101d4731c7d4b196cb0c7b01d743fbc6116a902379c723881565b61023e61053a366004611e4b565b610ec8565b34801561054b57600080fd5b506006546101d4906001600160a01b031681565b34801561056b57600080fd5b5061023e61057a366004611e4b565b610fd1565b34801561058b57600080fd5b5061023e61059a366004611f32565b611073565b3480156105ab57600080fd5b5061023e6105ba366004611f8c565b6113be565b61023e6105cd366004611d7b565b611592565b3480156105de57600080fd5b506105f26105ed366004611d7b565b6116f3565b6040519081526020016101e8565b34801561060c57600080fd5b5061062061061b366004611f10565b611724565b6040516101e89190611fea565b34801561063957600080fd5b5061023e610648366004611f10565b611790565b34801561065957600080fd5b506004546101d4906001600160a01b031681565b34801561067957600080fd5b5061023e611824565b34801561068e57600080fd5b5061023e611893565b61069f611cdb565b506001600160a01b0380831660009081526020818152604080832085845282529182902082516101208101845281549094168452600181015484830152600281015484840152825160608181018552600383015460ff80821684526101008083048216968501969096526201000090910481169583019590955285015260048101546080850152600581015460a0850152600681015460c085015260070154808316151560e08501528190049091161515908201525b92915050565b336000908152602081815260408083208484529091529020600781015460ff166107a05760405162461bcd60e51b81526004016107979061202e565b60405180910390fd5b80546001600160a01b031633146107c95760405162461bcd60e51b815260040161079790612056565b60078101805460ff19169055604051829033907f3ee9ca28321072883626157ba61d1c97dbb201875f5b65ab4d78f77fc316a31c90600090a35050565b336000908152602081815260408083208584529091529020600681015461083f5760405162461bcd60e51b81526004016107979061207e565b80546001600160a01b031633146108685760405162461bcd60e51b815260040161079790612056565b60070180549115156101000261ff001990921691909117905550565b8534146108d35760405162461bcd60e51b815260206004820152601760248201527f53656e6420636f72726563742045544820616d6f756e740000000000000000006044820152606401610797565b858511156109235760405162461bcd60e51b815260206004820152601c60248201527f4d6f6e74686c7920616d6f756e74206578636565647320746f74616c000000006044820152606401610797565b8061092e83856120c1565b61093891906120c1565b60ff1660641461095a5760405162461bcd60e51b8152600401610797906120da565b3360009081526002602052604090206007015460ff16156109b35760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792065786973747360681b6044820152606401610797565b600060405180606001604052808560ff1681526020018460ff1681526020018360ff168152509050604051806101200160405280336001600160a01b031681526020016000815260200187815260200182815260200160008152602001600081526020014281526020016001151581526020016000151581525060026000336001600160a01b03166001600160a01b0316815260200190815260200160002060008201518160000160006101000a8154816001600160a01b0302191690836001600160a01b03160217905550602082015181600101556040820151816002015560608201518160030160008201518160000160006101000a81548160ff021916908360ff16021790555060208201518160000160016101000a81548160ff021916908360ff16021790555060408201518160000160026101000a81548160ff021916908360ff16021790555050506080820151816004015560a0820151816005015560c0820151816006015560e08201518160070160006101000a81548160ff0219169083151502179055506101008201518160070160016101000a81548160ff021916908315150217905550905050336001600160a01b03167fc0bb35bcce58b1304817e85ccc9051e39c0e017093c16aa09c4408a40763f43f8887604051610ba7929190918252602082015260400190565b60405180910390a2610bb93388611902565b50505050505050565b336000908152600260205260409020600781015460ff1615610c1c5760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792061637469766560681b6044820152606401610797565b80546001600160a01b03163314610c655760405162461bcd60e51b815260206004820152600d60248201526c139bc81c1b185b88199bdd5b99609a1b6044820152606401610797565b60078101805460ff1916600117905560405160009033907f64bf4125848d90010c24cc30cdbcb050b80009b859b208313f6259c7dc12d994908390a350565b6006546001600160a01b03163314610cce5760405162461bcd60e51b815260040161079790612111565b600780546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8afc512c0bdd152ae40fb1548f4014dfaf323edbd91e8397519d5d586c9586bc90600090a35050565b610d28611cdb565b506001600160a01b03908116600090815260026020818152604092839020835161012081018552815490951685526001810154858301529182015484840152825160608181018552600384015460ff80821684526101008083048216958501959095526201000090910481169583019590955285015260048201546080850152600582015460a0850152600682015460c0850152600790910154808316151560e085015281900490911615159082015290565b3360009081526020818152604080832084845290915290206006810154610e145760405162461bcd60e51b81526004016107979061207e565b80546001600160a01b03163314610e3d5760405162461bcd60e51b815260040161079790612056565b600781015460ff1615610e885760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792061637469766560681b6044820152606401610797565b60078101805460ff19166001179055604051829033907f64bf4125848d90010c24cc30cdbcb050b80009b859b208313f6259c7dc12d99490600090a35050565b336000908152602081815260408083208484529091529020600781015460ff16610f045760405162461bcd60e51b81526004016107979061202e565b80546001600160a01b03163314610f2d5760405162461bcd60e51b815260040161079790612056565b60003411610f6d5760405162461bcd60e51b815260206004820152600d60248201526c09aeae6e840e6cadcc8408aa89609b1b6044820152606401610797565b610f7781346119a5565b34816004016000828254610f8b9190612135565b9091555050426005820155604051348152829033907fcf75a80a22cde0edcefe708f860e644c73eb8921aac7890f3bec010eef965f649060200160405180910390a35050565b336000908152602081815260408083208484529091529020600781015460ff1661100d5760405162461bcd60e51b81526004016107979061202e565b80546001600160a01b031633146110365760405162461bcd60e51b815260040161079790612056565b60078101805460ff19169055604051829033907f0f0575314e9a6c84f2bff03b4ceae4b5d4ca0fe92bff1acb153f13e5e36db71f90600090a35050565b600085116110d15760405162461bcd60e51b815260206004820152602560248201527f4d6f6e74686c7920616d6f756e74206d75737420626520677265617465722074604482015264068616e20360dc1b6064820152608401610797565b816110dc84866120c1565b6110e691906120c1565b60ff166064146111085760405162461bcd60e51b8152600401610797906120da565b33600090815260208181526040808320898452909152902060060154156111675760405162461bcd60e51b8152602060048201526013602482015272506c616e20616c72656164792065786973747360681b6044820152606401610797565b600060405180606001604052808660ff1681526020018560ff1681526020018460ff168152509050604051806101200160405280336001600160a01b031681526020018881526020018781526020018281526020016000815260200160008152602001428152602001600115158152602001831515815250600080336001600160a01b03166001600160a01b03168152602001908152602001600020600089815260200190815260200160002060008201518160000160006101000a8154816001600160a01b0302191690836001600160a01b03160217905550602082015181600101556040820151816002015560608201518160030160008201518160000160006101000a81548160ff021916908360ff16021790555060208201518160000160016101000a81548160ff021916908360ff16021790555060408201518160000160026101000a81548160ff021916908360ff16021790555050506080820151816004015560a0820151816005015560c0820151816006015560e08201518160070160006101000a81548160ff0219169083151502179055506101008201518160070160016101000a81548160ff02191690831515021790555090505060016000336001600160a01b03166001600160a01b0316815260200190815260200160002087908060018154018082558091505060019003906000526020600020016000909190919091505586336001600160a01b03167f1bd96959e90b965ecd58bac046f8d20f293cf639656f8987da258ccffc324361886040516113ad91815260200190565b60405180910390a350505050505050565b6006546001600160a01b031633146113e85760405162461bcd60e51b815260040161079790612111565b6001600160a01b0385166000908152602081815260408083208784529091529020600781015460ff1661142d5760405162461bcd60e51b81526004016107979061202e565b80546001600160a01b038781169116146114795760405162461bcd60e51b815260206004820152600d60248201526c0aae6cae440dad2e6dac2e8c6d609b1b6044820152606401610797565b6007810154610100900460ff166114d25760405162461bcd60e51b815260206004820152601760248201527f526562616c616e63696e67206e6f7420656e61626c65640000000000000000006044820152606401610797565b816114dd84866120c1565b6114e791906120c1565b60ff166064146115095760405162461bcd60e51b8152600401610797906120da565b60038101805460ff86811661ffff1990921682176101008783169081029190911762ff00001916620100009287169283021790935560408051928352602083019390935281830152905186916001600160a01b038916917f83f5707b16afbeb740e04e10842b33300d6ad2143d8b45de1919450747a0d16d9181900360600190a3505050505050565b6006546001600160a01b031633146115bc5760405162461bcd60e51b815260040161079790612111565b6001600160a01b038216600090815260208181526040808320848452909152902060068101546115fe5760405162461bcd60e51b81526004016107979061207e565b600781015460ff166116445760405162461bcd60e51b815260206004820152600f60248201526e506c616e206e6f742061637469766560881b6044820152606401610797565b600034116116845760405162461bcd60e51b815260206004820152600d60248201526c09aeae6e840e6cadcc8408aa89609b1b6044820152606401610797565b61168e81346119a5565b348160040160008282546116a29190612135565b909155505042600582015560405134815282906001600160a01b038516907fcf75a80a22cde0edcefe708f860e644c73eb8921aac7890f3bec010eef965f64906020015b60405180910390a3505050565b6001602052816000526040600020818154811061170f57600080fd5b90600052602060002001600091509150505481565b6001600160a01b03811660009081526001602090815260409182902080548351818402810184019094528084526060939283018282801561178457602002820191906000526020600020905b815481526020019060010190808311611770575b50505050509050919050565b6006546001600160a01b031633146117ba5760405162461bcd60e51b815260040161079790612111565b6001600160a01b0381166118025760405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206164647265737360881b6044820152606401610797565b600680546001600160a01b0319166001600160a01b0392909216919091179055565b336000908152600260205260409020600781015460ff166118575760405162461bcd60e51b81526004016107979061202e565b60078101805460ff1916905560405160009033907f3ee9ca28321072883626157ba61d1c97dbb201875f5b65ab4d78f77fc316a31c908390a350565b336000908152600260205260409020600781015460ff166118c65760405162461bcd60e51b81526004016107979061202e565b60078101805460ff1916905560405160009033907f0f0575314e9a6c84f2bff03b4ceae4b5d4ca0fe92bff1acb153f13e5e36db71f908390a350565b6001600160a01b0382166000908152600260205260409020600781015460ff1661193e5760405162461bcd60e51b81526004016107979061202e565b61194881836119a5565b8181600401600082825461195c9190612135565b90915550504260058201556040518281526000906001600160a01b038516907fcf75a80a22cde0edcefe708f860e644c73eb8921aac7890f3bec010eef965f64906020016116e6565b60038201546000906064906119bd9060ff1684612148565b6119c7919061215f565b60038401549091506000906064906119e790610100900460ff1685612148565b6119f1919061215f565b6003850154909150600090606490611a129062010000900460ff1686612148565b611a1c919061215f565b90508215611b01576003546040516000916001600160a01b03169085908381818185875af1925050503d8060008114611a71576040519150601f19603f3d011682016040523d82523d6000602084013e611a76565b606091505b5050905080611abd5760405162461bcd60e51b815260206004820152601360248201527210585d994819195c1bdcda5d0819985a5b1959606a1b6044820152606401610797565b6003546040518581526001600160a01b03909116907f870f86672db2c7b197484fa0218e97fe38eb7c89fd39ed2c4c910734c66182f89060200160405180910390a2505b8115611bee576004546040516000916001600160a01b03169084908381818185875af1925050503d8060008114611b54576040519150601f19603f3d011682016040523d82523d6000602084013e611b59565b606091505b5050905080611baa5760405162461bcd60e51b815260206004820152601760248201527f436f6d706f756e64206465706f736974206661696c65640000000000000000006044820152606401610797565b6004546040518481526001600160a01b03909116907f870f86672db2c7b197484fa0218e97fe38eb7c89fd39ed2c4c910734c66182f89060200160405180910390a2505b8015611cd4576005546040516000916001600160a01b03169083908381818185875af1925050503d8060008114611c41576040519150601f19603f3d011682016040523d82523d6000602084013e611c46565b606091505b5050905080611c905760405162461bcd60e51b8152602060048201526016602482015275155b9a5cddd85c0819195c1bdcda5d0819985a5b195960521b6044820152606401610797565b6005546040518381526001600160a01b03909116907f870f86672db2c7b197484fa0218e97fe38eb7c89fd39ed2c4c910734c66182f89060200160405180910390a2505b5050505050565b60405180610120016040528060006001600160a01b031681526020016000815260200160008152602001611d326040518060600160405280600060ff168152602001600060ff168152602001600060ff1681525090565b81526020016000815260200160008152602001600081526020016000151581526020016000151581525090565b80356001600160a01b0381168114611d7657600080fd5b919050565b60008060408385031215611d8e57600080fd5b611d9783611d5f565b946020939093013593505050565b81516001600160a01b031681526020808301519082015260408083015190820152606080830151610160830191611dfe9084018260ff815116825260ff602082015116602083015260ff60408201511660408301525050565b50608083015160c083015260a083015160e083015260c0830151610100818185015260e08501519150611e3661012085018315159052565b84015180151561014085015290505092915050565b600060208284031215611e5d57600080fd5b5035919050565b80358015158114611d7657600080fd5b60008060408385031215611e8757600080fd5b82359150611e9760208401611e64565b90509250929050565b803560ff81168114611d7657600080fd5b60008060008060008060c08789031215611eca57600080fd5b863595506020870135945060408701359350611ee860608801611ea0565b9250611ef660808801611ea0565b9150611f0460a08801611ea0565b90509295509295509295565b600060208284031215611f2257600080fd5b611f2b82611d5f565b9392505050565b60008060008060008060c08789031215611f4b57600080fd5b8635955060208701359450611f6260408801611ea0565b9350611f7060608801611ea0565b9250611f7e60808801611ea0565b9150611f0460a08801611e64565b600080600080600060a08688031215611fa457600080fd5b611fad86611d5f565b945060208601359350611fc260408701611ea0565b9250611fd060608701611ea0565b9150611fde60808701611ea0565b90509295509295909350565b6020808252825182820181905260009190848201906040850190845b8181101561202257835183529284019291840191600101612006565b50909695505050505050565b6020808252600e908201526d27379030b1ba34bb3290383630b760911b604082015260600190565b6020808252600e908201526d2737ba10383630b71037bbb732b960911b604082015260600190565b602080825260139082015272141b185b88191bd95cc81b9bdd08195e1a5cdd606a1b604082015260600190565b634e487b7160e01b600052601160045260246000fd5b60ff8181168382160190811115610755576107556120ab565b60208082526018908201527f50657263656e7473206d7573742073756d20746f203130300000000000000000604082015260600190565b6020808252600a908201526927b7363c9037bbb732b960b11b604082015260600190565b80820180821115610755576107556120ab565b8082028115828204841417610755576107556120ab565b60008261217c57634e487b7160e01b600052601260045260246000fd5b50049056fea26469706673582212207ceaff016bb1d9de460fce2ab5929613c972c4acc555b33e8505c21b72b83dcc64736f6c63430008140033",
+  "devdoc": {
+    "details": "Uses ERC-7715 permissions for automated USDC investments      SIP investments use USDC, Agent payments use ETH",
+    "kind": "dev",
+    "methods": {
+      "cancelPlanById(uint256)": {
+        "params": {
+          "planId": "The plan ID to cancel"
+        }
+      },
+      "createSIPPlanWithId(uint256,uint256,uint8,uint8,uint8,bool)": {
+        "params": {
+          "aavePercent": "Percentage allocation to Aave",
+          "compoundPercent": "Percentage allocation to Compound",
+          "enableRebalancing": "Whether to enable AI rebalancing",
+          "monthlyAmount": "Monthly investment amount",
+          "planId": "The database plan ID for reference",
+          "uniswapPercent": "Percentage allocation to Uniswap"
+        }
+      },
+      "depositForUser(address,uint256)": {
+        "details": "Used by the server after executing SIP via spend permissions",
+        "params": {
+          "planId": "The plan ID to deposit to",
+          "user": "The user whose plan to deposit to"
+        }
+      },
+      "depositToPlan(uint256)": {
+        "params": {
+          "planId": "The plan ID to execute deposit for"
+        }
+      },
+      "pausePlanById(uint256)": {
+        "params": {
+          "planId": "The plan ID to pause"
+        }
+      },
+      "rebalance(address,uint256,uint8,uint8,uint8)": {
+        "details": "Called by the owner (server) after AI generates new strategy",
+        "params": {
+          "newAavePercent": "New percentage allocation to Aave",
+          "newCompoundPercent": "New percentage allocation to Compound",
+          "newUniswapPercent": "New percentage allocation to Uniswap",
+          "planId": "The plan ID to rebalance",
+          "user": "The user whose plan is being rebalanced"
+        }
+      },
+      "resumePlanById(uint256)": {
+        "params": {
+          "planId": "The plan ID to resume"
+        }
+      },
+      "setRebalancing(uint256,bool)": {
+        "params": {
+          "enabled": "Whether to enable rebalancing",
+          "planId": "The plan ID"
+        }
+      }
+    },
+    "title": "PermiSIPAI",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "cancelPlan()": {
+        "notice": "Cancel a SIP plan (legacy)"
+      },
+      "cancelPlanById(uint256)": {
+        "notice": "Cancel a specific plan"
+      },
+      "createSIPPlan(uint256,uint256,uint256,uint8,uint8,uint8)": {
+        "notice": "Create a SIP plan (legacy - single plan per user)"
+      },
+      "createSIPPlanWithId(uint256,uint256,uint8,uint8,uint8,bool)": {
+        "notice": "Create a new SIP plan for a user with plan ID and rebalancing option"
+      },
+      "depositForUser(address,uint256)": {
+        "notice": "Deposit ETH on behalf of a user's plan (only owner/server can call)"
+      },
+      "depositToPlan(uint256)": {
+        "notice": "Execute a deposit for a specific plan (user must call directly)"
+      },
+      "getPlan(address)": {
+        "notice": "Get a user's SIP plan (legacy)"
+      },
+      "getPlanById(address,uint256)": {
+        "notice": "Get a user's SIP plan by ID"
+      },
+      "getUserPlanIds(address)": {
+        "notice": "Get all plan IDs for a user"
+      },
+      "pausePlan()": {
+        "notice": "Pause a SIP plan (legacy)"
+      },
+      "pausePlanById(uint256)": {
+        "notice": "Pause a specific plan"
+      },
+      "rebalance(address,uint256,uint8,uint8,uint8)": {
+        "notice": "Rebalance a user's SIP plan with new strategy allocation"
+      },
+      "resumePlan()": {
+        "notice": "Resume a paused SIP plan (legacy)"
+      },
+      "resumePlanById(uint256)": {
+        "notice": "Resume a paused plan"
+      },
+      "setExpertAgentAddress(address)": {
+        "notice": "Set the expert agent address for AI payments"
+      },
+      "setRebalancing(uint256,bool)": {
+        "notice": "Toggle rebalancing for a plan"
+      },
+      "transferOwnership(address)": {
+        "notice": "Transfer ownership"
+      }
+    },
+    "notice": "Main contract for PermiSIP AI DeFAI automation using MetaMask Advanced Permissions",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 74,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "userPlans",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(SIPPlan)67_storage))"
+      },
+      {
+        "astId": 79,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "userPlanIds",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)"
+      },
+      {
+        "astId": 84,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "legacyUserPlans",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_struct(SIPPlan)67_storage)"
+      },
+      {
+        "astId": 86,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "aave",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_address"
+      },
+      {
+        "astId": 88,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "compound",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_address"
+      },
+      {
+        "astId": 90,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "uniswap",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_address"
+      },
+      {
+        "astId": 92,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "owner",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_address"
+      },
+      {
+        "astId": 100,
+        "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+        "label": "expertAgentAddress",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_uint256)dyn_storage"
+      },
+      "t_mapping(t_address,t_mapping(t_uint256,t_struct(SIPPlan)67_storage))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(uint256 => struct PermiSIPAI.SIPPlan))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_struct(SIPPlan)67_storage)"
+      },
+      "t_mapping(t_address,t_struct(SIPPlan)67_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct PermiSIPAI.SIPPlan)",
+        "numberOfBytes": "32",
+        "value": "t_struct(SIPPlan)67_storage"
+      },
+      "t_mapping(t_uint256,t_struct(SIPPlan)67_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct PermiSIPAI.SIPPlan)",
+        "numberOfBytes": "32",
+        "value": "t_struct(SIPPlan)67_storage"
+      },
+      "t_struct(SIPPlan)67_storage": {
+        "encoding": "inplace",
+        "label": "struct PermiSIPAI.SIPPlan",
+        "members": [
+          {
+            "astId": 49,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "user",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 51,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "planId",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 53,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "monthlyAmount",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 56,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "strategy",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_struct(Strategy)47_storage"
+          },
+          {
+            "astId": 58,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "totalDeposited",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 60,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "lastDepositTime",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 62,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "createdAt",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 64,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "active",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_bool"
+          },
+          {
+            "astId": 66,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "rebalancingEnabled",
+            "offset": 1,
+            "slot": "7",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "256"
+      },
+      "t_struct(Strategy)47_storage": {
+        "encoding": "inplace",
+        "label": "struct PermiSIPAI.Strategy",
+        "members": [
+          {
+            "astId": 42,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "aavePercent",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 44,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "compoundPercent",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 46,
+            "contract": "contracts/PermiSIPAI.sol:PermiSIPAI",
+            "label": "uniswapPercent",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_uint8"
+          }
+        ],
+        "numberOfBytes": "32"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

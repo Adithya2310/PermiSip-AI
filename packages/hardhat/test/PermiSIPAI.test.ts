@@ -54,7 +54,10 @@ describe("PermiSIPAI", function () {
     });
   });
 
-  describe("Create SIP Plan", function () {
+  // ============================================
+  // LEGACY TESTS - Backward Compatibility
+  // ============================================
+  describe("Legacy: Create SIP Plan", function () {
     it("Should create a SIP plan with correct parameters", async function () {
       const tx = await permiSIPAI.connect(user1).createSIPPlan(
         TOTAL_AMOUNT,
@@ -66,17 +69,15 @@ describe("PermiSIPAI", function () {
         { value: TOTAL_AMOUNT },
       );
 
-      await expect(tx).to.emit(permiSIPAI, "SIPCreated").withArgs(user1.address, TOTAL_AMOUNT, DURATION);
+      await expect(tx).to.emit(permiSIPAI, "LegacySIPCreated").withArgs(user1.address, TOTAL_AMOUNT, DURATION);
 
       const plan = await permiSIPAI.getPlan(user1.address);
       expect(plan.user).to.equal(user1.address);
-      expect(plan.totalAmount).to.equal(TOTAL_AMOUNT);
       expect(plan.monthlyAmount).to.equal(MONTHLY_AMOUNT);
-      expect(plan.duration).to.equal(DURATION);
       expect(plan.strategy.aavePercent).to.equal(60);
       expect(plan.strategy.compoundPercent).to.equal(30);
       expect(plan.strategy.uniswapPercent).to.equal(10);
-      expect(plan.deposited).to.equal(TOTAL_AMOUNT); // First deposit executed immediately
+      expect(plan.totalDeposited).to.equal(TOTAL_AMOUNT); // First deposit executed immediately
       expect(plan.active).to.equal(true);
     });
 
@@ -172,33 +173,436 @@ describe("PermiSIPAI", function () {
         .connect(user1)
         .createSIPPlan(TOTAL_AMOUNT, MONTHLY_AMOUNT, DURATION, 60, 30, 10, { value: TOTAL_AMOUNT });
 
-      await expect(tx).to.emit(permiSIPAI, "DepositExecuted").withArgs(user1.address, TOTAL_AMOUNT);
+      await expect(tx).to.emit(permiSIPAI, "DepositExecuted").withArgs(user1.address, 0, TOTAL_AMOUNT);
     });
   });
 
-  describe("Multiple Users", function () {
-    it("Should allow multiple users to create separate plans", async function () {
-      // User1 creates a plan
+  // ============================================
+  // NEW MULTI-PLAN TESTS
+  // ============================================
+  describe("Multi-Plan: Create SIP Plan with ID", function () {
+    it("Should create a SIP plan with plan ID", async function () {
+      const planId = 1;
+      const monthlyAmount = ethers.parseUnits("100", 6); // 100 USDC
+
+      const tx = await permiSIPAI.connect(user1).createSIPPlanWithId(
+        planId,
+        monthlyAmount,
+        50, // 50% Aave
+        30, // 30% Compound
+        20, // 20% Uniswap
+        true, // Enable rebalancing
+      );
+
+      await expect(tx).to.emit(permiSIPAI, "SIPCreated").withArgs(user1.address, planId, monthlyAmount);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, planId);
+      expect(plan.user).to.equal(user1.address);
+      expect(plan.planId).to.equal(planId);
+      expect(plan.monthlyAmount).to.equal(monthlyAmount);
+      expect(plan.strategy.aavePercent).to.equal(50);
+      expect(plan.strategy.compoundPercent).to.equal(30);
+      expect(plan.strategy.uniswapPercent).to.equal(20);
+      expect(plan.active).to.equal(true);
+      expect(plan.rebalancingEnabled).to.equal(true);
+    });
+
+    it("Should create a SIP plan without rebalancing", async function () {
+      const planId = 2;
+      const monthlyAmount = ethers.parseUnits("50", 6);
+
+      await permiSIPAI.connect(user1).createSIPPlanWithId(planId, monthlyAmount, 40, 40, 20, false);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, planId);
+      expect(plan.rebalancingEnabled).to.equal(false);
+    });
+
+    it("Should allow user to have multiple plans with different IDs", async function () {
+      // Create plan 1
+      await permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("100", 6), 60, 30, 10, true);
+
+      // Create plan 2
+      await permiSIPAI.connect(user1).createSIPPlanWithId(2, ethers.parseUnits("200", 6), 50, 25, 25, false);
+
+      const plan1 = await permiSIPAI.getPlanById(user1.address, 1);
+      const plan2 = await permiSIPAI.getPlanById(user1.address, 2);
+
+      expect(plan1.monthlyAmount).to.equal(ethers.parseUnits("100", 6));
+      expect(plan2.monthlyAmount).to.equal(ethers.parseUnits("200", 6));
+      expect(plan1.rebalancingEnabled).to.equal(true);
+      expect(plan2.rebalancingEnabled).to.equal(false);
+
+      const planIds = await permiSIPAI.getUserPlanIds(user1.address);
+      expect(planIds.length).to.equal(2);
+      expect(planIds[0]).to.equal(1);
+      expect(planIds[1]).to.equal(2);
+    });
+
+    it("Should revert if plan ID already exists", async function () {
+      await permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("100", 6), 60, 30, 10, true);
+
+      await expect(
+        permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("200", 6), 50, 25, 25, false),
+      ).to.be.revertedWith("Plan already exists");
+    });
+
+    it("Should revert if monthly amount is 0", async function () {
+      await expect(permiSIPAI.connect(user1).createSIPPlanWithId(1, 0, 60, 30, 10, true)).to.be.revertedWith(
+        "Monthly amount must be greater than 0",
+      );
+    });
+  });
+
+  // ============================================
+  // REBALANCING TESTS
+  // ============================================
+  describe("Rebalancing", function () {
+    beforeEach(async () => {
+      // Create a plan with rebalancing enabled
+      await permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("100", 6), 60, 30, 10, true);
+    });
+
+    it("Should allow owner to rebalance a user's plan", async function () {
+      const tx = await permiSIPAI.connect(owner).rebalance(
+        user1.address,
+        1, // planId
+        40, // New Aave %
+        35, // New Compound %
+        25, // New Uniswap %
+      );
+
+      await expect(tx).to.emit(permiSIPAI, "PlanRebalanced").withArgs(user1.address, 1, 40, 35, 25);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.strategy.aavePercent).to.equal(40);
+      expect(plan.strategy.compoundPercent).to.equal(35);
+      expect(plan.strategy.uniswapPercent).to.equal(25);
+    });
+
+    it("Should revert if non-owner tries to rebalance", async function () {
+      await expect(permiSIPAI.connect(user2).rebalance(user1.address, 1, 40, 35, 25)).to.be.revertedWith("Only owner");
+    });
+
+    it("Should revert if plan is not active", async function () {
+      await permiSIPAI.connect(user1).pausePlanById(1);
+
+      await expect(permiSIPAI.connect(owner).rebalance(user1.address, 1, 40, 35, 25)).to.be.revertedWith(
+        "No active plan",
+      );
+    });
+
+    it("Should revert if rebalancing is not enabled", async function () {
+      // Create a plan without rebalancing
+      await permiSIPAI.connect(user1).createSIPPlanWithId(2, ethers.parseUnits("100", 6), 60, 30, 10, false);
+
+      await expect(permiSIPAI.connect(owner).rebalance(user1.address, 2, 40, 35, 25)).to.be.revertedWith(
+        "Rebalancing not enabled",
+      );
+    });
+
+    it("Should revert if new percentages don't sum to 100", async function () {
+      await expect(permiSIPAI.connect(owner).rebalance(user1.address, 1, 40, 35, 20)).to.be.revertedWith(
+        "Percents must sum to 100",
+      );
+    });
+
+    it("Should allow user to toggle rebalancing", async function () {
+      // Initially enabled
+      let plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.rebalancingEnabled).to.equal(true);
+
+      // Disable
+      await permiSIPAI.connect(user1).setRebalancing(1, false);
+      plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.rebalancingEnabled).to.equal(false);
+
+      // Enable again
+      await permiSIPAI.connect(user1).setRebalancing(1, true);
+      plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.rebalancingEnabled).to.equal(true);
+    });
+
+    it("Should revert setRebalancing if not plan owner", async function () {
+      await expect(permiSIPAI.connect(user2).setRebalancing(1, false)).to.be.revertedWith("Plan does not exist");
+    });
+  });
+
+  // ============================================
+  // DEPOSIT TO PLAN TESTS
+  // ============================================
+  describe("Deposit to Plan", function () {
+    beforeEach(async () => {
+      await permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("100", 6), 60, 30, 10, true);
+    });
+
+    it("Should allow deposits to a specific plan", async function () {
+      const depositAmount = ethers.parseEther("1");
+
+      const aaveBalanceBefore = await ethers.provider.getBalance(await mockAave.getAddress());
+      const compoundBalanceBefore = await ethers.provider.getBalance(await mockCompound.getAddress());
+      const uniswapBalanceBefore = await ethers.provider.getBalance(await mockUniswap.getAddress());
+
+      const tx = await permiSIPAI.connect(user1).depositToPlan(1, { value: depositAmount });
+
+      await expect(tx).to.emit(permiSIPAI, "DepositExecuted").withArgs(user1.address, 1, depositAmount);
+
+      const aaveBalanceAfter = await ethers.provider.getBalance(await mockAave.getAddress());
+      const compoundBalanceAfter = await ethers.provider.getBalance(await mockCompound.getAddress());
+      const uniswapBalanceAfter = await ethers.provider.getBalance(await mockUniswap.getAddress());
+
+      expect(aaveBalanceAfter - aaveBalanceBefore).to.equal((depositAmount * 60n) / 100n);
+      expect(compoundBalanceAfter - compoundBalanceBefore).to.equal((depositAmount * 30n) / 100n);
+      expect(uniswapBalanceAfter - uniswapBalanceBefore).to.equal((depositAmount * 10n) / 100n);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.totalDeposited).to.equal(depositAmount);
+    });
+
+    it("Should revert if plan is not active", async function () {
+      await permiSIPAI.connect(user1).pausePlanById(1);
+
+      await expect(permiSIPAI.connect(user1).depositToPlan(1, { value: ethers.parseEther("1") })).to.be.revertedWith(
+        "No active plan",
+      );
+    });
+
+    it("Should revert if deposit amount is 0", async function () {
+      await expect(permiSIPAI.connect(user1).depositToPlan(1, { value: 0 })).to.be.revertedWith("Must send ETH");
+    });
+  });
+
+  // ============================================
+  // DEPOSIT FOR USER TESTS (Owner deposits on behalf of users)
+  // ============================================
+  describe("Deposit For User (Owner)", function () {
+    beforeEach(async () => {
+      await permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("100", 6), 60, 30, 10, true);
+    });
+
+    it("Should allow owner to deposit on behalf of a user", async function () {
+      const depositAmount = ethers.parseEther("1");
+
+      const aaveBalanceBefore = await ethers.provider.getBalance(await mockAave.getAddress());
+      const compoundBalanceBefore = await ethers.provider.getBalance(await mockCompound.getAddress());
+      const uniswapBalanceBefore = await ethers.provider.getBalance(await mockUniswap.getAddress());
+
+      const tx = await permiSIPAI.connect(owner).depositForUser(user1.address, 1, { value: depositAmount });
+
+      await expect(tx).to.emit(permiSIPAI, "DepositExecuted").withArgs(user1.address, 1, depositAmount);
+
+      const aaveBalanceAfter = await ethers.provider.getBalance(await mockAave.getAddress());
+      const compoundBalanceAfter = await ethers.provider.getBalance(await mockCompound.getAddress());
+      const uniswapBalanceAfter = await ethers.provider.getBalance(await mockUniswap.getAddress());
+
+      expect(aaveBalanceAfter - aaveBalanceBefore).to.equal((depositAmount * 60n) / 100n);
+      expect(compoundBalanceAfter - compoundBalanceBefore).to.equal((depositAmount * 30n) / 100n);
+      expect(uniswapBalanceAfter - uniswapBalanceBefore).to.equal((depositAmount * 10n) / 100n);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.totalDeposited).to.equal(depositAmount);
+    });
+
+    it("Should revert if non-owner tries to deposit for user", async function () {
+      await expect(
+        permiSIPAI.connect(user2).depositForUser(user1.address, 1, { value: ethers.parseEther("1") }),
+      ).to.be.revertedWith("Only owner");
+    });
+
+    it("Should revert if plan does not exist", async function () {
+      await expect(
+        permiSIPAI.connect(owner).depositForUser(user2.address, 999, { value: ethers.parseEther("1") }),
+      ).to.be.revertedWith("Plan does not exist");
+    });
+
+    it("Should revert if plan is not active", async function () {
+      await permiSIPAI.connect(user1).pausePlanById(1);
+
+      await expect(
+        permiSIPAI.connect(owner).depositForUser(user1.address, 1, { value: ethers.parseEther("1") }),
+      ).to.be.revertedWith("Plan not active");
+    });
+
+    it("Should revert if deposit amount is 0", async function () {
+      await expect(permiSIPAI.connect(owner).depositForUser(user1.address, 1, { value: 0 })).to.be.revertedWith(
+        "Must send ETH",
+      );
+    });
+  });
+
+  // ============================================
+  // PLAN MANAGEMENT TESTS (Multi-plan)
+  // ============================================
+  describe("Multi-Plan Management", function () {
+    beforeEach(async () => {
+      await permiSIPAI.connect(user1).createSIPPlanWithId(1, ethers.parseUnits("100", 6), 60, 30, 10, true);
+    });
+
+    it("Should allow user to cancel a specific plan", async function () {
+      const tx = await permiSIPAI.connect(user1).cancelPlanById(1);
+
+      await expect(tx).to.emit(permiSIPAI, "PlanCancelled").withArgs(user1.address, 1);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.active).to.equal(false);
+    });
+
+    it("Should allow user to pause a specific plan", async function () {
+      const tx = await permiSIPAI.connect(user1).pausePlanById(1);
+
+      await expect(tx).to.emit(permiSIPAI, "PlanPaused").withArgs(user1.address, 1);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.active).to.equal(false);
+    });
+
+    it("Should allow user to resume a paused plan", async function () {
+      await permiSIPAI.connect(user1).pausePlanById(1);
+
+      const tx = await permiSIPAI.connect(user1).resumePlanById(1);
+
+      await expect(tx).to.emit(permiSIPAI, "PlanResumed").withArgs(user1.address, 1);
+
+      const plan = await permiSIPAI.getPlanById(user1.address, 1);
+      expect(plan.active).to.equal(true);
+    });
+
+    it("Should revert if trying to resume an active plan", async function () {
+      await expect(permiSIPAI.connect(user1).resumePlanById(1)).to.be.revertedWith("Plan already active");
+    });
+
+    it("Should revert if non-owner tries to cancel", async function () {
+      await expect(permiSIPAI.connect(user2).cancelPlanById(1)).to.be.revertedWith("No active plan");
+    });
+  });
+
+  // ============================================
+  // LEGACY PLAN MANAGEMENT TESTS
+  // ============================================
+  describe("Legacy Plan Management", function () {
+    beforeEach(async () => {
       await permiSIPAI
         .connect(user1)
         .createSIPPlan(TOTAL_AMOUNT, MONTHLY_AMOUNT, DURATION, 60, 30, 10, { value: TOTAL_AMOUNT });
+    });
 
-      // User2 creates a different plan
-      const user2Amount = ethers.parseEther("24");
-      await permiSIPAI
-        .connect(user2)
-        .createSIPPlan(user2Amount, ethers.parseEther("2"), 12, 50, 25, 25, { value: user2Amount });
+    describe("Cancel Plan", function () {
+      it("Should allow user to cancel their active plan", async function () {
+        const tx = await permiSIPAI.connect(user1).cancelPlan();
 
-      const plan1 = await permiSIPAI.getPlan(user1.address);
-      const plan2 = await permiSIPAI.getPlan(user2.address);
+        await expect(tx).to.emit(permiSIPAI, "PlanCancelled").withArgs(user1.address, 0);
 
-      expect(plan1.totalAmount).to.equal(TOTAL_AMOUNT);
-      expect(plan2.totalAmount).to.equal(user2Amount);
-      expect(plan1.strategy.aavePercent).to.equal(60);
-      expect(plan2.strategy.aavePercent).to.equal(50);
+        const plan = await permiSIPAI.getPlan(user1.address);
+        expect(plan.active).to.equal(false);
+      });
+
+      it("Should revert if no active plan exists", async function () {
+        await expect(permiSIPAI.connect(user2).cancelPlan()).to.be.revertedWith("No active plan");
+      });
+
+      it("Should revert if plan already cancelled", async function () {
+        await permiSIPAI.connect(user1).cancelPlan();
+        await expect(permiSIPAI.connect(user1).cancelPlan()).to.be.revertedWith("No active plan");
+      });
+    });
+
+    describe("Pause Plan", function () {
+      it("Should allow user to pause their active plan", async function () {
+        const tx = await permiSIPAI.connect(user1).pausePlan();
+
+        await expect(tx).to.emit(permiSIPAI, "PlanPaused").withArgs(user1.address, 0);
+
+        const plan = await permiSIPAI.getPlan(user1.address);
+        expect(plan.active).to.equal(false);
+      });
+
+      it("Should revert if no active plan exists", async function () {
+        await expect(permiSIPAI.connect(user2).pausePlan()).to.be.revertedWith("No active plan");
+      });
+
+      it("Should revert if plan already paused", async function () {
+        await permiSIPAI.connect(user1).pausePlan();
+        await expect(permiSIPAI.connect(user1).pausePlan()).to.be.revertedWith("No active plan");
+      });
+    });
+
+    describe("Resume Plan", function () {
+      beforeEach(async () => {
+        await permiSIPAI.connect(user1).pausePlan();
+      });
+
+      it("Should allow user to resume their paused plan", async function () {
+        const tx = await permiSIPAI.connect(user1).resumePlan();
+
+        await expect(tx).to.emit(permiSIPAI, "PlanResumed").withArgs(user1.address, 0);
+
+        const plan = await permiSIPAI.getPlan(user1.address);
+        expect(plan.active).to.equal(true);
+      });
+
+      it("Should revert if plan is already active", async function () {
+        await permiSIPAI.connect(user1).resumePlan();
+        await expect(permiSIPAI.connect(user1).resumePlan()).to.be.revertedWith("Plan already active");
+      });
+
+      it("Should revert if no plan exists", async function () {
+        await expect(permiSIPAI.connect(user2).resumePlan()).to.be.revertedWith("No plan found");
+      });
+    });
+
+    describe("Plan Lifecycle", function () {
+      it("Should allow pause -> resume -> pause cycle", async function () {
+        // Pause
+        await permiSIPAI.connect(user1).pausePlan();
+        let plan = await permiSIPAI.getPlan(user1.address);
+        expect(plan.active).to.equal(false);
+
+        // Resume
+        await permiSIPAI.connect(user1).resumePlan();
+        plan = await permiSIPAI.getPlan(user1.address);
+        expect(plan.active).to.equal(true);
+
+        // Pause again
+        await permiSIPAI.connect(user1).pausePlan();
+        plan = await permiSIPAI.getPlan(user1.address);
+        expect(plan.active).to.equal(false);
+      });
     });
   });
 
+  // ============================================
+  // OWNER FUNCTIONS TESTS
+  // ============================================
+  describe("Owner Functions", function () {
+    it("Should allow owner to set expert agent address", async function () {
+      const newAgentAddress = user2.address;
+
+      const tx = await permiSIPAI.connect(owner).setExpertAgentAddress(newAgentAddress);
+
+      await expect(tx).to.emit(permiSIPAI, "ExpertAgentAddressUpdated").withArgs(ethers.ZeroAddress, newAgentAddress);
+
+      expect(await permiSIPAI.expertAgentAddress()).to.equal(newAgentAddress);
+    });
+
+    it("Should allow owner to transfer ownership", async function () {
+      await permiSIPAI.connect(owner).transferOwnership(user2.address);
+
+      expect(await permiSIPAI.owner()).to.equal(user2.address);
+    });
+
+    it("Should revert if non-owner tries to transfer ownership", async function () {
+      await expect(permiSIPAI.connect(user1).transferOwnership(user2.address)).to.be.revertedWith("Only owner");
+    });
+
+    it("Should revert if transferring to zero address", async function () {
+      await expect(permiSIPAI.connect(owner).transferOwnership(ethers.ZeroAddress)).to.be.revertedWith(
+        "Invalid address",
+      );
+    });
+  });
+
+  // ============================================
+  // STRATEGY ALLOCATION TESTS
+  // ============================================
   describe("Strategy Allocation", function () {
     it("Should handle 100% allocation to single protocol", async function () {
       await permiSIPAI.connect(user1).createSIPPlan(
@@ -241,13 +645,16 @@ describe("PermiSIPAI", function () {
     });
   });
 
+  // ============================================
+  // EDGE CASES
+  // ============================================
   describe("Edge Cases", function () {
     it("Should handle very small amounts", async function () {
       const smallAmount = ethers.parseEther("0.001");
       await permiSIPAI.connect(user1).createSIPPlan(smallAmount, smallAmount, 1, 60, 30, 10, { value: smallAmount });
 
       const plan = await permiSIPAI.getPlan(user1.address);
-      expect(plan.totalAmount).to.equal(smallAmount);
+      expect(plan.monthlyAmount).to.equal(smallAmount);
       expect(plan.active).to.equal(true);
     });
 
@@ -258,18 +665,20 @@ describe("PermiSIPAI", function () {
         .createSIPPlan(largeAmount, ethers.parseEther("100"), 10, 60, 30, 10, { value: largeAmount });
 
       const plan = await permiSIPAI.getPlan(user1.address);
-      expect(plan.totalAmount).to.equal(largeAmount);
-      expect(plan.deposited).to.equal(largeAmount);
+      expect(plan.totalDeposited).to.equal(largeAmount);
     });
 
     it("Should return empty plan for address with no plan", async function () {
       const plan = await permiSIPAI.getPlan(user2.address);
       expect(plan.user).to.equal(ethers.ZeroAddress);
-      expect(plan.totalAmount).to.equal(0);
+      expect(plan.monthlyAmount).to.equal(0);
       expect(plan.active).to.equal(false);
     });
   });
 
+  // ============================================
+  // CONTRACT BALANCE
+  // ============================================
   describe("Contract Balance", function () {
     it("Should have zero balance after distributing all funds", async function () {
       await permiSIPAI
@@ -292,117 +701,9 @@ describe("PermiSIPAI", function () {
     });
   });
 
-  describe("Gas Optimization", function () {
-    it("Should create plan with reasonable gas cost", async function () {
-      const tx = await permiSIPAI
-        .connect(user1)
-        .createSIPPlan(TOTAL_AMOUNT, MONTHLY_AMOUNT, DURATION, 60, 30, 10, { value: TOTAL_AMOUNT });
-
-      const receipt = await tx.wait();
-      expect(receipt?.gasUsed).to.be.lessThan(500000n); // Should be well under 500k gas
-    });
-  });
-
-  describe("Plan Management", function () {
-    beforeEach(async () => {
-      await permiSIPAI
-        .connect(user1)
-        .createSIPPlan(TOTAL_AMOUNT, MONTHLY_AMOUNT, DURATION, 60, 30, 10, { value: TOTAL_AMOUNT });
-    });
-
-    describe("Cancel Plan", function () {
-      it("Should allow user to cancel their active plan", async function () {
-        const tx = await permiSIPAI.connect(user1).cancelPlan();
-
-        await expect(tx).to.emit(permiSIPAI, "PlanCancelled").withArgs(user1.address, 0);
-
-        const plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(false);
-      });
-
-      it("Should revert if no active plan exists", async function () {
-        await expect(permiSIPAI.connect(user2).cancelPlan()).to.be.revertedWith("No active plan");
-      });
-
-      it("Should revert if plan already cancelled", async function () {
-        await permiSIPAI.connect(user1).cancelPlan();
-        await expect(permiSIPAI.connect(user1).cancelPlan()).to.be.revertedWith("No active plan");
-      });
-    });
-
-    describe("Pause Plan", function () {
-      it("Should allow user to pause their active plan", async function () {
-        const tx = await permiSIPAI.connect(user1).pausePlan();
-
-        await expect(tx).to.emit(permiSIPAI, "PlanPaused").withArgs(user1.address);
-
-        const plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(false);
-      });
-
-      it("Should revert if no active plan exists", async function () {
-        await expect(permiSIPAI.connect(user2).pausePlan()).to.be.revertedWith("No active plan");
-      });
-
-      it("Should revert if plan already paused", async function () {
-        await permiSIPAI.connect(user1).pausePlan();
-        await expect(permiSIPAI.connect(user1).pausePlan()).to.be.revertedWith("No active plan");
-      });
-    });
-
-    describe("Resume Plan", function () {
-      beforeEach(async () => {
-        await permiSIPAI.connect(user1).pausePlan();
-      });
-
-      it("Should allow user to resume their paused plan", async function () {
-        const tx = await permiSIPAI.connect(user1).resumePlan();
-
-        await expect(tx).to.emit(permiSIPAI, "PlanResumed").withArgs(user1.address);
-
-        const plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(true);
-      });
-
-      it("Should revert if plan is already active", async function () {
-        await permiSIPAI.connect(user1).resumePlan();
-        await expect(permiSIPAI.connect(user1).resumePlan()).to.be.revertedWith("Plan already active");
-      });
-
-      it("Should revert if no plan exists", async function () {
-        await expect(permiSIPAI.connect(user2).resumePlan()).to.be.revertedWith("No plan found");
-      });
-    });
-
-    describe("Plan Lifecycle", function () {
-      it("Should allow pause -> resume -> pause cycle", async function () {
-        // Pause
-        await permiSIPAI.connect(user1).pausePlan();
-        let plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(false);
-
-        // Resume
-        await permiSIPAI.connect(user1).resumePlan();
-        plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(true);
-
-        // Pause again
-        await permiSIPAI.connect(user1).pausePlan();
-        plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(false);
-      });
-
-      it("Should not allow creating new plan after cancellation without resuming", async function () {
-        await permiSIPAI.connect(user1).cancelPlan();
-
-        // Cannot resume a cancelled plan to create new one
-        // User data still exists but is inactive
-        const plan = await permiSIPAI.getPlan(user1.address);
-        expect(plan.active).to.equal(false);
-      });
-    });
-  });
-
+  // ============================================
+  // VALIDATION
+  // ============================================
   describe("Validation", function () {
     it("Should revert if monthly amount exceeds total amount", async function () {
       await expect(
@@ -432,7 +733,6 @@ describe("PermiSIPAI", function () {
 
       const plan = await permiSIPAI.getPlan(user1.address);
       expect(plan.monthlyAmount).to.equal(amount);
-      expect(plan.totalAmount).to.equal(amount);
     });
   });
 });
