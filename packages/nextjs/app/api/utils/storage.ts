@@ -6,6 +6,7 @@
 interface PermissionData {
   permissions: any;
   sessionAccountAddress: string;
+  permissionType?: "agent" | "sip";
   createdAt: number;
 }
 

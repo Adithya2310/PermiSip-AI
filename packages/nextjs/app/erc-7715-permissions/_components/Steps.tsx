@@ -53,13 +53,13 @@ export const Steps = (): React.JSX.Element => {
               </p>
               <Button
                 disabled={isLoading}
-                onClick={() =>
-                  requestPermission({
+                onClick={async () => {
+                  await requestPermission({
                     periodAmount: 1000000000000000n, // 0.001 ETH
                     periodDuration: 86400,
                     expiry: Math.floor(Date.now() / 1000) + 30 * 86400,
-                  })
-                }
+                  });
+                }}
               >
                 {isLoading ? "Processing..." : "Request Permissions"}
               </Button>
