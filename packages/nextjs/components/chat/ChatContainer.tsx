@@ -143,7 +143,9 @@ export const ChatContainer = ({ onPlanComplete }: ChatContainerProps) => {
     if (isContractSuccess && pendingPlanId) {
       const strategy = generateFallbackStrategy(planData.riskLevel);
       console.log("✅ Smart contract plan created on-chain, tx:", createPlanTxHash);
-      addSystemMessage(`Plan registered on-chain! Tx: ${createPlanTxHash?.slice(0, 10)}...`);
+      addSystemMessage(
+        `Plan registered on-chain! [View Transaction](https://sepolia.etherscan.io/tx/${createPlanTxHash})`,
+      );
 
       // Show success message
       setTimeout(() => {
@@ -179,7 +181,7 @@ export const ChatContainer = ({ onPlanComplete }: ChatContainerProps) => {
 
     try {
       // Step 1: Save to database first to get planId
-      addSystemMessage("Saving plan to database...");
+      // addSystemMessage("Saving plan to database...");
       const response = await fetch("/api/sip/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -208,7 +210,7 @@ export const ChatContainer = ({ onPlanComplete }: ChatContainerProps) => {
 
       if (data.success) {
         console.log("✅ SIP Plan created in database:", data.plan);
-        addSystemMessage(`SIP Plan #${data.plan.id} saved to database.`);
+        // addSystemMessage(`SIP Plan #${data.plan.id} saved to database.`);
 
         // Step 2: Call smart contract with the planId
         if (permiSIPAIContract) {
