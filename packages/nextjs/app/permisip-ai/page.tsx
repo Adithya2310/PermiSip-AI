@@ -3,10 +3,9 @@
 import React from "react";
 import { useAccount } from "wagmi";
 import { ChatContainer } from "~~/components/chat/ChatContainer";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 export default function PermiSIPChat() {
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -31,7 +30,7 @@ export default function PermiSIPChat() {
             </div>
 
             {/* Wallet Connection */}
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
               {isConnected && address && (
                 <div className="text-right hidden sm:block">
                   <div className="text-xs text-gray-500">Connected</div>
@@ -41,7 +40,7 @@ export default function PermiSIPChat() {
                 </div>
               )}
               <RainbowKitCustomConnectButton />
-            </div>
+            </div> */}
           </div>
         </div>
 

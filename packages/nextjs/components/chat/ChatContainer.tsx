@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChatMessage, MessageType } from "./ChatMessage";
-import { parseEther } from "viem";
-import { useAccount } from "wagmi";
+import { parseEther, parseUnits } from "viem";
+import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { usePermissions } from "~~/app/erc-7715-permissions/hooks/usePermissions";
+import deployedContracts from "~~/contracts/deployedContracts";
 
 type ConversationStep =
   | "greeting"
@@ -57,12 +58,24 @@ export const ChatContainer = ({ onPlanComplete }: ChatContainerProps) => {
     error,
   } = usePermissions();
 
+  // Get PermiSIPAI contract config
+  const permiSIPAIContract = deployedContracts[11155111]?.PermiSIPAI;
+
+  // Smart contract write hook
+  const { data: createPlanTxHash, writeContract } = useWriteContract();
+
+  // Wait for transaction confirmation
+  const { isSuccess: isContractSuccess } = useWaitForTransactionReceipt({
+    hash: createPlanTxHash,
+  });
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [step, setStep] = useState<ConversationStep>("greeting");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const [pendingPlanId, setPendingPlanId] = useState<number | null>(null);
 
   // Collected data
   const [planData, setPlanData] = useState({
@@ -125,11 +138,48 @@ export const ChatContainer = ({ onPlanComplete }: ChatContainerProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sipPermission, step, planData]);
 
-  // Create SIP Plan in database
+  // Watch for contract transaction success
+  useEffect(() => {
+    if (isContractSuccess && pendingPlanId) {
+      const strategy = generateFallbackStrategy(planData.riskLevel);
+      console.log("✅ Smart contract plan created on-chain, tx:", createPlanTxHash);
+      addSystemMessage(`Plan registered on-chain! Tx: ${createPlanTxHash?.slice(0, 10)}...`);
+
+      // Show success message
+      setTimeout(() => {
+        addAIMessage(
+          `🎉 **Your SIP Plan is Ready!**\n\n` +
+            `**Summary:**\n` +
+            `• Goal: ${planData.goal}\n` +
+            `• Monthly SIP: ${planData.monthlyAmount} USDC\n` +
+            `• Risk Level: ${planData.riskLevel.charAt(0).toUpperCase() + planData.riskLevel.slice(1)}\n` +
+            `• AI Agent Budget: ${planData.aiSpendLimit} ETH\n\n` +
+            `**Strategy:**\n` +
+            `• Aave: ${strategy.aave}%\n` +
+            `• Compound: ${strategy.compound}%\n` +
+            `• Uniswap: ${strategy.uniswap}%\n\n` +
+            `Your automated investments will begin according to your schedule!`,
+          ["View Dashboard"],
+        );
+        setStep("complete");
+
+        // Call the completion callback if provided
+        if (onPlanComplete) {
+          onPlanComplete(pendingPlanId);
+        }
+        setPendingPlanId(null);
+      }, 500);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isContractSuccess, pendingPlanId]);
+
+  // Create SIP Plan: First in database, then on-chain
   const createSIPPlan = async () => {
     const strategy = generateFallbackStrategy(planData.riskLevel);
 
     try {
+      // Step 1: Save to database first to get planId
+      addSystemMessage("Saving plan to database...");
       const response = await fetch("/api/sip/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -157,32 +207,60 @@ export const ChatContainer = ({ onPlanComplete }: ChatContainerProps) => {
       const data = await response.json();
 
       if (data.success) {
-        console.log("✅ SIP Plan created:", data.plan);
-        addSystemMessage(`SIP Plan #${data.plan.id} created and saved.`);
+        console.log("✅ SIP Plan created in database:", data.plan);
+        addSystemMessage(`SIP Plan #${data.plan.id} saved to database.`);
 
-        // Show success message
-        setTimeout(() => {
-          addAIMessage(
-            `🎉 **Your SIP Plan is Ready!**\n\n` +
-              `**Summary:**\n` +
-              `• Goal: ${planData.goal}\n` +
-              `• Monthly SIP: ${planData.monthlyAmount} USDC\n` +
-              `• Risk Level: ${planData.riskLevel.charAt(0).toUpperCase() + planData.riskLevel.slice(1)}\n` +
-              `• AI Agent Budget: ${planData.aiSpendLimit} ETH\n\n` +
-              `**Strategy:**\n` +
-              `• Aave: ${strategy.aave}%\n` +
-              `• Compound: ${strategy.compound}%\n` +
-              `• Uniswap: ${strategy.uniswap}%\n\n` +
-              `Your automated investments will begin according to your schedule!`,
-            ["View Dashboard"],
-          );
-          setStep("complete");
+        // Step 2: Call smart contract with the planId
+        if (permiSIPAIContract) {
+          addSystemMessage("Registering plan on blockchain...");
 
-          // Call the completion callback if provided
-          if (onPlanComplete) {
-            onPlanComplete(data.plan.id);
-          }
-        }, 500);
+          // Parse monthly amount to USDC units (6 decimals)
+          const monthlyAmountParsed = parseUnits(planData.monthlyAmount, 6);
+
+          writeContract({
+            address: permiSIPAIContract.address as `0x${string}`,
+            abi: permiSIPAIContract.abi,
+            functionName: "createSIPPlanWithId",
+            args: [
+              BigInt(data.plan.id), // planId from database
+              monthlyAmountParsed, // monthlyAmount in USDC
+              strategy.aave, // aavePercent
+              strategy.compound, // compoundPercent
+              strategy.uniswap, // uniswapPercent
+              true, // enableRebalancing
+            ],
+          });
+
+          // Store the planId for when transaction completes
+          setPendingPlanId(data.plan.id);
+        } else {
+          // Contract not deployed, show success anyway
+          console.warn("PermiSIPAI contract not found, skipping on-chain registration");
+          addSystemMessage("Plan saved (contract not available for on-chain registration)");
+
+          // Show success message
+          setTimeout(() => {
+            addAIMessage(
+              `🎉 **Your SIP Plan is Ready!**\n\n` +
+                `**Summary:**\n` +
+                `• Goal: ${planData.goal}\n` +
+                `• Monthly SIP: ${planData.monthlyAmount} USDC\n` +
+                `• Risk Level: ${planData.riskLevel.charAt(0).toUpperCase() + planData.riskLevel.slice(1)}\n` +
+                `• AI Agent Budget: ${planData.aiSpendLimit} ETH\n\n` +
+                `**Strategy:**\n` +
+                `• Aave: ${strategy.aave}%\n` +
+                `• Compound: ${strategy.compound}%\n` +
+                `• Uniswap: ${strategy.uniswap}%\n\n` +
+                `Your automated investments will begin according to your schedule!`,
+              ["View Dashboard"],
+            );
+            setStep("complete");
+
+            if (onPlanComplete) {
+              onPlanComplete(data.plan.id);
+            }
+          }, 500);
+        }
       } else {
         console.error("Failed to create SIP plan:", data.error);
         addSystemMessage(`⚠️ Failed to save plan: ${data.error}`);

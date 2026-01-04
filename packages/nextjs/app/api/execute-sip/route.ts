@@ -10,7 +10,12 @@ import { Hex, createPublicClient, encodeFunctionData, http, parseEther, parseUni
 import { createBundlerClient } from "viem/account-abstraction";
 import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
+import deployedContracts from "~~/contracts/deployedContracts";
+import { DEFAULT_ALCHEMY_API_KEY } from "~~/scaffold.config";
 import { initializeDatabase, isDatabaseConfigured, turso } from "~~/utils/db/turso";
+
+// Get Alchemy RPC URL
+const ALCHEMY_RPC_URL = `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || DEFAULT_ALCHEMY_API_KEY}`;
 
 // USDC address on Ethereum Sepolia
 const USDC_SEPOLIA = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
@@ -27,6 +32,23 @@ const ERC20_TRANSFER_ABI = [
     outputs: [{ name: "", type: "bool" }],
   },
 ] as const;
+
+// PermiSIPAI depositForUser function ABI (owner can deposit on behalf of users)
+const DEPOSIT_FOR_USER_ABI = [
+  {
+    name: "depositForUser",
+    type: "function",
+    inputs: [
+      { name: "user", type: "address" },
+      { name: "planId", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+] as const;
+
+// Get PermiSIPAI contract address from deployed contracts
+const PERMI_SIPAI_ADDRESS = deployedContracts[11155111]?.PermiSIPAI?.address as Hex | undefined;
 
 export async function POST(request: NextRequest) {
   try {
@@ -125,7 +147,7 @@ export async function POST(request: NextRequest) {
     const account = privateKeyToAccount(privateKey);
     const publicClient = createPublicClient({
       chain: sepolia,
-      transport: http(),
+      transport: http(ALCHEMY_RPC_URL),
     });
 
     const sessionAccount = await toMetaMaskSmartAccount({
@@ -264,14 +286,65 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 3: Record successful execution
+    // Step 3: Call PermiSIPAI.depositForUser using server wallet (owner) to register deposit on-chain
+    let depositTxHash: string | null = null;
+    if (PERMI_SIPAI_ADDRESS) {
+      try {
+        console.log("📝 Calling PermiSIPAI.depositForUser via server wallet...");
+
+        // Get server wallet private key (this should be the contract owner)
+        const serverPrivateKey = process.env.SERVER_WALLET_PRIVATE_KEY || process.env.SESSION_PRIVATE_KEY;
+        if (!serverPrivateKey) {
+          console.warn("⚠️ No server wallet configured, skipping on-chain deposit");
+        } else {
+          // Create server wallet account
+          const serverAccount = privateKeyToAccount(serverPrivateKey as Hex);
+
+          // Encode depositForUser function call
+          const depositData = encodeFunctionData({
+            abi: DEPOSIT_FOR_USER_ABI,
+            functionName: "depositForUser",
+            args: [userAddress as Hex, BigInt(planId)],
+          });
+
+          // The ETH amount is symbolic to track the deposit on-chain
+          const depositAmount = parseEther("0.0001");
+
+          // Send transaction using viem wallet client
+          const { createWalletClient } = await import("viem");
+          const walletClient = createWalletClient({
+            account: serverAccount,
+            chain: sepolia,
+            transport: http(ALCHEMY_RPC_URL),
+          });
+
+          const txHash = await walletClient.sendTransaction({
+            to: PERMI_SIPAI_ADDRESS,
+            value: depositAmount,
+            data: depositData,
+          });
+
+          // Wait for transaction to be mined
+          const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+          depositTxHash = receipt.transactionHash;
+          console.log("✅ Deposit registered on-chain:", depositTxHash);
+        }
+      } catch (depositError: any) {
+        // Log but don't fail the whole execution if on-chain deposit tracking fails
+        console.error("⚠️ Failed to register deposit on-chain (non-fatal):", depositError.message);
+      }
+    } else {
+      console.log("⚠️ PermiSIPAI contract not configured, skipping on-chain deposit");
+    }
+
+    // Step 4: Record successful execution in database
     await turso.execute({
       sql: `INSERT INTO sip_executions (plan_id, user_address, amount, tx_hash, status, executed_at)
             VALUES (?, ?, ?, ?, 'success', ?)`,
       args: [planId, userAddress.toLowerCase(), usdcAmount, sipTxHash, now],
     });
 
-    // Step 4: Update plan's last_execution and total_deposited
+    // Step 5: Update plan's last_execution and total_deposited
     const currentDeposited = parseFloat((plan.total_deposited as string) || "0");
     const newDeposited = currentDeposited + parseFloat(usdcAmount);
 
@@ -285,6 +358,7 @@ export async function POST(request: NextRequest) {
       message: "SIP executed successfully",
       agentTxHash,
       sipTxHash,
+      depositTxHash,
       usdcAmount,
       planId,
       executedAt: now,
